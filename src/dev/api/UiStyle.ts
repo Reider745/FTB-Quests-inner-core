@@ -13,8 +13,17 @@ class CloseButtonStyle {
 };
 class UiTabStyle {
     public frame: string;
+    public tab_slot: string;
+    public tab_selected: string;
+    public scale: number;
+    public quest: string;
+
     constructor(){
         this.frame = "default_container_frame";
+        this.tab_slot = "_default_slot_empty";
+        this.tab_selected = "default_container_frame";
+        this.scale = 1;
+        this.quest = "offline";
     }
 };
 class UiStyle {

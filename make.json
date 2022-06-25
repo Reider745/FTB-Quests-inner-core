@@ -45,6 +45,11 @@
 			"source": "src/launcher.js",
 			"type": "launcher",
 			"language": "javascript"
+		},
+		{
+			"source": "src/lib/*",
+			"type": "library",
+			"language": "javascript"
 		}
 	],
 	"compile": [],

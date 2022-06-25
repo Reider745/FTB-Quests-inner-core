@@ -4,6 +4,6 @@ output
 !.idea/runConfigurations
 **/__pycache__
 **/tsconfig.json
-
+src/assets
 *.log
 *.icmod
