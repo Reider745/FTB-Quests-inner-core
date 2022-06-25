@@ -1,0 +1,9 @@
+.vscode/.ropeproject
+toolchain
+output
+!.idea/runConfigurations
+**/__pycache__
+**/tsconfig.json
+
+*.log
+*.icmod

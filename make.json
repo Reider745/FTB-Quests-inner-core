@@ -1,0 +1,52 @@
+{
+	"global": {
+		"info": {
+			"name": "FTB Quests",
+			"description": "This is sample description",
+			"author": "Reider ___",
+			"version": "Beta 1.0",
+			"icon": "src/icon.png"
+		},
+		"api": "CoreEngine"
+	},
+	"make": {
+		"debugAbi": "armeabi-v7a",
+		"abis": [
+			"armeabi-v7a",
+			"x86"
+		],
+		"linkNative": [
+			"minecraftpe",
+			"innercore",
+			"nativejs"
+		],
+		"excludeFromRelease": [],
+		"pushTo": "storage/emulated/0/games/horizon/packs/innercore-test-b113-performance-beta-v2/innercore/mods/FTBQuests",
+		"ndkPath": null
+	},
+	"resources": [
+		{
+			"path": "src/assets/res",
+			"type": "resource_directory"
+		},
+		{
+			"path": "src/assets/gui",
+			"type": "gui"
+		}
+	],
+	"sources": [
+		{
+			"source": "src/dev",
+			"target": "main.js",
+			"type": "main",
+			"language": "typescript"
+		},
+		{
+			"source": "src/launcher.js",
+			"type": "launcher",
+			"language": "javascript"
+		}
+	],
+	"compile": [],
+	"additional": []
+}
