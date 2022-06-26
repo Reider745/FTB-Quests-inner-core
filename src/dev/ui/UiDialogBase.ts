@@ -26,7 +26,7 @@ class UiDialogBase {
     public build(): UiDialogBase {
         this.font = new Font({size: this.style.size});
         let self = this;
-        let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.color[0], this.style.color[1], this.style.color[2])}, multiline: true};
+        let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
         let lines = this.message.split("\n");
         let height = 0;
         let width = 0;
@@ -42,15 +42,17 @@ class UiDialogBase {
                 {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}
             ],
             elements: {
-                "background": {type: "image", bitmap:"_default_slot_empty" , x: 0, y: 0, width: 1000, height: 999999, clicker: {
+                "background": {type: "image", bitmap:"_default_slot_empty", x: 0, y: 0, width: 1000, height: 999999, clicker: {
                     onClick(position, container, tileEntity, window, canvas, scale) {
                         self.close();
                     },
                 }},
-                "frame": {type:"frame", bitmap: this.style.frame, x: this.x - 10, y: this.y - 10, width: width + 10, height: height + 20, scale: 3},
+                "frame": {type:"frame", bitmap: this.style.frame, x: this.x - 10, y: this.y - 10, width: width + 10, height: height + 20, scale: this.style.scale, color: android.graphics.Color.argb(this.style.color[0], this.style.color[1], this.style.color[2],  this.style.color[3])},
                 "text": description
             }
         });
+        this.ui.setBlockingBackground(false);
+        
         return this;
     }
 
@@ -64,7 +66,9 @@ class UiDialogBase {
         this.message = message;
         return this;
     }
-
+    public getUi(): UI.Window {
+        return this.ui;
+    }
     public open(): UiDialogBase{
         this.ui.open();
         return this;

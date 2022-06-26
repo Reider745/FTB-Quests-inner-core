@@ -1,17 +1,17 @@
 let Color = android.graphics.Color;
 class UiDialogStyle {
     public frame: string;
-    public max: number;
     public size: number;
     public scale: number;
-    public color: [number, number, number];
+    public color: [number, number, number, number];
+    public text: [number, number, number];
 
-    constructor(){
-        this.frame = "default_container_frame";
-        this.max = 150;
-        this.size = 20;
-        this.scale = 3;
-        this.color = [1, 1, 1];
+    constructor(frame: string = "default_container_frame", size: number = 20, scale: number = .5, color: [number, number, number, number] = [.25, 0, 0, 0], text: [number, number, number] = [1, 1, 1]){
+        this.frame = frame;
+        this.size = size;
+        this.scale = scale;
+        this.color = color;
+        this.text = text;
     }
 }
 class CloseButtonStyle {
@@ -34,7 +34,7 @@ class UiTabStyle {
     constructor(){
         this.frame = "default_container_frame";
         this.tab_slot = "_default_slot_empty";
-        this.tab_selected = "default_container_frame";
+        this.tab_selected = "default_container_frame_alpha";
         this.scale = 1;
         this.quest = "offline";
     }

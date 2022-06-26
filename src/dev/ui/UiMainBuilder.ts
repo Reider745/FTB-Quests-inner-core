@@ -58,30 +58,6 @@ class UiMainBuilder {
         this.ui_left.buildServer(container);
         this.ui_right.buildServer(container);
     }
-
-    protected buildTabFrame(left: number, right: number, builder: UiTabsBuilder, container: ItemContainer, group: UI.WindowGroup): UI.Window {
-        let location = new UI.WindowLocation({
-            padding: {
-                right: right,
-                left: left
-            }
-        });
-        builder.ui = new UI.Window({
-            location: {
-                padding: {
-                    right: right,
-                    left: left
-                },
-                scrollY: builder.getHeight()
-            },
-            drawing: [
-                {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}
-            ],
-            elements: builder.build(container, location),
-        });
-        return builder.ui;
-    }
-
     public build(container: ItemContainer): UI.WindowGroup {
         this.group = new UI.WindowGroup();
         let self = this;
@@ -106,8 +82,8 @@ class UiMainBuilder {
             }
         })
         this.group.addWindowInstance("background", this.main);
-        this.group.addWindowInstance("left", this.buildTabFrame(0, 1000-this.ui_left.getMaxSize(), this.ui_left, container, this.group));
-        this.group.addWindowInstance("right", this.buildTabFrame(1000-this.ui_right.getMaxSize(), 0, this.ui_right, container, this.group));
+        this.group.addWindowInstance("left", this.ui_left.build(container, 0, 1000-this.ui_left.getMaxSize()).ui)
+        this.group.addWindowInstance("right", this.ui_right.build(container, 1000-this.ui_right.getMaxSize(), 0).ui)
         this.group.addWindowInstance("main", new UI.Window({
             location: {
                 padding: {
@@ -122,6 +98,7 @@ class UiMainBuilder {
         }))
         return this.group;
     }
+
     public getUi(): UI.WindowGroup{
         return this.group;
     }

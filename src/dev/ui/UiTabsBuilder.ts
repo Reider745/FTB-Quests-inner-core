@@ -5,7 +5,6 @@ let Utils = WRAP_JAVA("com.zhekasmirnov.innercore.utils.UIUtils");
 class UiTabsBuilder {
     private elements: StandartTabElement[];
     private prefix: string;
-    private content: UI.ElementSet;
     public main: UiMainBuilder;
     public ui: UI.Window;
 
@@ -35,32 +34,35 @@ class UiTabsBuilder {
     }
     protected clear(element: StandartTabElement,){
         this.elements.forEach(element => {
-            this.content[this.prefix+"_"+element.getId()].bitmap = element.getTextureSlot(this.main.style);
+            this.ui.content.elements[this.prefix+"_"+element.getId()].bitmap = element.getTextureSlot(this.main.style);
         });
     }
     public selectedTab(builder: UiTabsBuilder, element: StandartTabElement){
         this.clear(element);
     }
-    protected onClick(element: StandartTabElement, location: UI.WindowLocation, position, container, tileEntity, window, canvas, scale): void {
+    protected onClick(element: StandartTabElement, position: Vector, container, tileEntity, window, canvas, scale): void {
         if(element.onClick(position, container, tileEntity, window, canvas, scale)){
             this.main.selectedTab(this, element);
-            this.content[this.prefix+"_"+element.getId()].bitmap = element.getTextureSelected(this.main.style);
+            this.ui.content.elements[this.prefix+"_"+element.getId()].bitmap = element.getTextureSelected(this.main.style);
             this.buildTabInformation(element, this.main.group, this.main.style);
         }
     }
-    private dialog: UiDialogBase = new UiDialogBase("", 0, 0).setStyle(new UiDialogStyle())
-    protected onLongClick(element: StandartTabElement, location: UI.WindowLocation, position, container, tileEntity, window: UI.Window, canvas, scale): void {
+    private dialog: UiDialogBase = new UiDialogBase("", 0, 0);
+    protected onLongClick(element: StandartTabElement, position: Vector, container, tileEntity, window, canvas, scale): void {
         if(element.onLongClick(position, container, tileEntity, window, canvas, scale)){
-            let elem = this.content[this.prefix+"_"+element.getId()];
-            alert(elem.y+ " "+this.ui.layout.getScrollY()+" "+this.ui.layout.getTranslationY()+" "+this.ui.layout.getScrollY());
+            let elem = this.ui.content.elements[this.prefix+"_"+element.getId()];
             if(element.getDisplayName() != "")
-                this.dialog.setMessage(element.getDisplayName()).setPos(location.windowToGlobal(elem.x)+element.getSize(), location.windowToGlobal(elem.y - this.ui.layout.getScrollY()) ).build().open();
-            //this.main.selectedTab(this, element);
-            //this.content[this.prefix+"_"+element.getId()].bitmap = element.getTextureSelected(this.main.style);
-            //this.buildTabInformation(element, this.main.group, this.main.style);
+                this.dialog.setMessage(element.getDisplayName()).setPos(this.ui.location.windowToGlobal(elem.x)+element.getSize(), this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))).build().open();
         }
     }
-    public build(container: ItemContainer, location: UI.WindowLocation): UI.ElementSet{
+    public build(container: ItemContainer, left: number, right: number): UiTabsBuilder {
+        let location = new UI.WindowLocation({
+            padding: {
+                right: right,
+                left: left
+            }
+        });
+        
         let elements: UI.ElementSet = {};
         let self = this;
         let y = 0;
@@ -68,19 +70,28 @@ class UiTabsBuilder {
             if(element.isDisplay()){
                 let size = location.globalToWindow(element.getSize());
                 elements[this.prefix+"_"+element.getId()] = {type: "slot", x: 0, y: y, size: size, visual: true, bitmap: element.getTextureSlot(this.main.style), clicker: {
-                    onClick(position, container, tileEntity, window, canvas, scale) {
-                        self.onClick(element, location, position, container, tileEntity, window, canvas, scale);
+                    onClick(position: Vector, container, tileEntity, window, canvas, scale) {
+                        self.onClick(element, position, container, tileEntity, window, canvas, scale);
                     },
-                    onLongClick(position, container, tileEntity, window: any, canvas, scale) {
-                        self.onLongClick(element, location, position, container, tileEntity, window, canvas, scale)
+                    onLongClick(position: Vector, container, tileEntity, window: any, canvas, scale) {
+                        self.onLongClick(element, position, container, tileEntity, window, canvas, scale)
                     },
                 }, source: element.getItem()};
                 element.updateSlotClient(container);
                 y+=size;
             }
         });
-        this.content = elements;
-        return elements;
+
+        location.setScroll(0, location.windowToGlobal(y));
+
+        this.ui = new UI.Window({
+            location: location.asScriptable(),
+            drawing: [
+                {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}
+            ],
+            elements: elements,
+        });
+        return this;
     }
     public getMaxSize(): number {
         let max = 0;
