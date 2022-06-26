@@ -1,1 +1,14 @@
-**/*.ts
+header.ts
+
+api/TextureBuilder.ts
+
+ui/UiDialogBase.ts
+ui/Quest.ts
+ui/UiStyle.ts
+ui/UiTabsBuilder.ts
+ui/StandartTabElement.ts
+ui/UiMainBuilder.ts
+
+api/UiJsonParser.ts
+
+shared.ts

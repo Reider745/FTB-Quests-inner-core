@@ -1,6 +1,19 @@
-let TextureSource = WRAP_JAVA("com.zhekasmirnov.innercore.api.mod.ui.TextureSource").instance;
 let Color = android.graphics.Color;
-const MAX_SIZE = 50;
+class UiDialogStyle {
+    public frame: string;
+    public max: number;
+    public size: number;
+    public scale: number;
+    public color: [number, number, number];
+
+    constructor(){
+        this.frame = "default_container_frame";
+        this.max = 150;
+        this.size = 20;
+        this.scale = 3;
+        this.color = [1, 1, 1];
+    }
+}
 class CloseButtonStyle {
     public bitmap: string;
     public scale: number;
@@ -8,7 +21,7 @@ class CloseButtonStyle {
     constructor(bitmap: string = "missing_image"){
         this.bitmap = bitmap;
         let image = TextureSource.get(bitmap);
-        this.scale = MAX_SIZE / image.getWidth();
+        this.scale = 50 / image.getWidth();
     }
 };
 class UiTabStyle {

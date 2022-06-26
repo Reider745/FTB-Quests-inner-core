@@ -1,4 +1,7 @@
-/// <reference path="./api/UiMainBuilder.ts"/>
+/// <reference path="./ui/UiMainBuilder.ts"/>
+/// <reference path="./ui/StandartTabElement.ts"/>
+/// <reference path="./ui/Quest.ts"/>
+
 ModAPI.registerAPI("FTBQuests", {
     UiMainBuilder: UiMainBuilder
 });
