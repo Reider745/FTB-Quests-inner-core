@@ -7,10 +7,12 @@ class UiTabsBuilder {
     private prefix: string;
     public main: UiMainBuilder;
     public ui: UI.Window;
+    private isLeft: boolean;
 
-    constructor(prefix: string){
+    constructor(prefix: string, isLeft: boolean){
         this.elements = [];
         this.prefix = prefix;
+        this.isLeft = isLeft;
     }
     public addRender(element: StandartTabElement): UiTabsBuilder {
         element.setUiTabsBuilder(this);
@@ -51,8 +53,23 @@ class UiTabsBuilder {
     protected onLongClick(element: StandartTabElement, position: Vector, container, tileEntity, window, canvas, scale): void {
         if(element.onLongClick(position, container, tileEntity, window, canvas, scale)){
             let elem = this.ui.content.elements[this.prefix+"_"+element.getId()];
-            if(element.getDisplayName() != "")
-                this.dialog.setMessage(element.getDisplayName()).setPos(this.ui.location.windowToGlobal(elem.x)+element.getSize(), this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))).build().open();
+            if(element.getDisplayName() != ""){
+                /*this.dialog.setMessage(element.getDisplayName()).setPos(this.ui.location.windowToGlobal(elem.x)+element.getSize(), this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale())));
+                if(this.ui.location.getRect().left != 0)
+                    this.dialog.build().open();
+                else{
+                    let size = this.dialog.getSize();
+                    this.dialog.setPos(this.ui.location.getRect().left-size.width, this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))).build().open();
+            
+                }*/
+                this.dialog.setMessage(element.getDisplayName());
+                let size = this.dialog.getSize();
+                let y = this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))
+                if(this.isLeft)
+                    this.dialog.setPos(element.getSize(), y).build().open();   
+                else
+                    this.dialog.setPos((1000-this.getMaxSize())-size.width, y).build().open();
+            }
         }
     }
     public build(container: ItemContainer, left: number, right: number): UiTabsBuilder {

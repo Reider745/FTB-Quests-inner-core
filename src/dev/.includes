@@ -3,6 +3,7 @@ header.ts
 api/TextureBuilder.ts
 
 ui/UiDialogBase.ts
+ui/UiDialog.ts
 ui/Quest.ts
 ui/UiStyle.ts
 ui/UiTabsBuilder.ts

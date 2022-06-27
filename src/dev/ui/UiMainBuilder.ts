@@ -24,8 +24,8 @@ class UiMainBuilder {
     constructor(){
         this.main = new UI.Window();
         this.style = new UiStyle();
-        this.ui_left = new UiTabsBuilder("left");
-        this.ui_right = new UiTabsBuilder("right");
+        this.ui_left = new UiTabsBuilder("left", true);
+        this.ui_right = new UiTabsBuilder("right", false);
 
         this.ui_left.setUiMainBuilder(this, new UI.Window());
         this.ui_right.setUiMainBuilder(this, new UI.Window());
@@ -89,13 +89,18 @@ class UiMainBuilder {
                 padding: {
                     left: this.ui_left.getMaxSize()+3,
                     right: this.ui_right.getMaxSize()-3
-                }
+                },
+                scrollX: 2000,
+                scrollY: 2000,
             },
             drawing: [
                 {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}
             ],
             elements: {}
         }))
+        let win = this.group.getWindow("main");
+        win.setCloseOnBackPressed(true);
+        
         return this.group;
     }
 

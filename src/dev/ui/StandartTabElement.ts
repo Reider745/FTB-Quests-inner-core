@@ -22,6 +22,7 @@ class StandartTabElement {
         let content = window.getContent();
         content.elements = {};
         this.quests.forEach(element => {
+            element.tab = this;
             content.elements[element.getId()] = element.build(style);
         });
         window.setContent(content);

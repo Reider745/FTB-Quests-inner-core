@@ -3,43 +3,68 @@
 let Font = com.zhekasmirnov.innercore.api.mod.ui.types.Font;
 let TextElement = com.zhekasmirnov.innercore.api.mod.ui.elements.UITextElement;
 
-class UiDialogBase {
-    private message: string;
-    private x: number;
-    private y: number;
-    private ui: UI.Window;
-    private font: com.zhekasmirnov.innercore.api.mod.ui.types.Font;
-    public style: UiDialogStyle;
+class Size {
+    public width: number;
+    public height: number;
+    constructor(width: number, height: number){
+        this.width = width;
+        this.height = height;
+    }
+}
 
-    constructor(message: string, x: number, y: number){
+class UiDialogBase {
+    protected message: string;
+    protected x: number;
+    protected y: number;
+    protected ui: UI.Window;
+    protected font: com.zhekasmirnov.innercore.api.mod.ui.types.Font;
+    public style: UiDialogBaseStyle;
+
+    constructor(message: string, x: number = 0, y: number = 0){
         this.message = message;
         this.x = x;
         this.y = y;
-        this.style = new UiDialogStyle();
+        this.style = new UiDialogBaseStyle();
 
         this.build();
     }
-    public setStyle(style: UiDialogStyle): UiDialogBase {
+    public setStyle(style: UiDialogBaseStyle): UiDialogBase {
         this.style = style;
         return this;
     }
-    public build(): UiDialogBase {
-        this.font = new Font({size: this.style.size});
-        let self = this;
-        let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
-        let lines = this.message.split("\n");
-        let height = 0;
-        let width = 0;
+    static getSize(message: string, size: number): Size {
+        let font = new Font({size: size});
+        let lines = message.split("\n");
+        let height: number = 0;
+        let width: number = 0;
         for (const i in lines) {
             const text = lines[i];
-            height += this.font.getTextHeight(text, this.x, this.y+height, 1) * 1.1;
-            if(width < this.font.getTextWidth(text, 1))
-                width = this.font.getTextWidth(text, 1);
+            height += font.getTextHeight(text, 0, 0+height, 1) * 1.1;
+            if(width < font.getTextWidth(text, 1))
+                width = font.getTextWidth(text, 1);
         }
-
+        return new Size(width, height);
+    }
+    public getSize(): Size {
+        return UiDialogBase.getSize(this.message, this.style.size);
+    }
+    public openCenter(location: UI.WindowLocation = new UI.WindowLocation()){
+        let size = this.getSize();
+        this.setPos((1000 / 2) - (size.width / 2), (this.ui.location.height / 2) - (size.height / 2)).build().open();
+    }
+    public isDisplay(x: number = this.x, y: number = this.y): boolean{
+        let size = this.getSize();
+        if(x + size.width > 1000 || y + size.height > height)
+            return false;
+        return true;
+    }
+    public build(): UiDialogBase {
+        let self = this;
+        let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
+        let size = this.getSize();
         this.ui = new UI.Window({
             drawing: [
-                {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}
+                {type: "color", color: android.graphics.Color.argb(this.style.background[0], this.style.background[1], this.style.background[2], this.style.background[3])}
             ],
             elements: {
                 "background": {type: "image", bitmap:"_default_slot_empty", x: 0, y: 0, width: 1000, height: 999999, clicker: {
@@ -47,12 +72,10 @@ class UiDialogBase {
                         self.close();
                     },
                 }},
-                "frame": {type:"frame", bitmap: this.style.frame, x: this.x - 10, y: this.y - 10, width: width + 10, height: height + 20, scale: this.style.scale, color: android.graphics.Color.argb(this.style.color[0], this.style.color[1], this.style.color[2],  this.style.color[3])},
+                "frame": {type:"frame", bitmap: this.style.frame, x: this.x - 10, y: this.y - 10, width: size.width + 10, height: size.height + 20, scale: this.style.scale, color: android.graphics.Color.argb(this.style.color[0], this.style.color[1], this.style.color[2],  this.style.color[3])},
                 "text": description
             }
         });
-        this.ui.setBlockingBackground(false);
-        
         return this;
     }
 
