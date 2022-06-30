@@ -32,7 +32,7 @@ class UiTabsBuilder {
         return this;
     }
     protected buildTabInformation(element: StandartTabElement, group: UI.WindowGroup, style: UiStyle){
-        element.build(group.getWindow("main"), style);
+        element.build(group.getWindow("main"));
     }
     protected clear(element: StandartTabElement,){
         this.elements.forEach(element => {
@@ -54,14 +54,6 @@ class UiTabsBuilder {
         if(element.onLongClick(position, container, tileEntity, window, canvas, scale)){
             let elem = this.ui.content.elements[this.prefix+"_"+element.getId()];
             if(element.getDisplayName() != ""){
-                /*this.dialog.setMessage(element.getDisplayName()).setPos(this.ui.location.windowToGlobal(elem.x)+element.getSize(), this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale())));
-                if(this.ui.location.getRect().left != 0)
-                    this.dialog.build().open();
-                else{
-                    let size = this.dialog.getSize();
-                    this.dialog.setPos(this.ui.location.getRect().left-size.width, this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))).build().open();
-            
-                }*/
                 this.dialog.setMessage(element.getDisplayName());
                 let size = this.dialog.getSize();
                 let y = this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))
@@ -108,6 +100,7 @@ class UiTabsBuilder {
             ],
             elements: elements,
         });
+        onSystemUiVisibility(this.ui);
         return this;
     }
     public getMaxSize(): number {

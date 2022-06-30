@@ -12,6 +12,14 @@ class Size {
     }
 }
 
+Translation.addTranslation("Tasks", {
+    ru: "Задачи"
+});
+
+Translation.addTranslation("Awards", {
+    ru: "Награды"
+});
+
 class UiDialogBase {
     protected message: string;
     protected x: number;
@@ -71,11 +79,18 @@ class UiDialogBase {
                     onClick(position, container, tileEntity, window, canvas, scale) {
                         self.close();
                     },
-                }},
+                }, z: -5},
                 "frame": {type:"frame", bitmap: this.style.frame, x: this.x - 10, y: this.y - 10, width: size.width + 10, height: size.height + 20, scale: this.style.scale, color: android.graphics.Color.argb(this.style.color[0], this.style.color[1], this.style.color[2],  this.style.color[3])},
                 "text": description
             }
         });
+        this.ui.setEventListener({
+            onClose(window) {},
+            onOpen(window) {
+                onSystemUiVisibilityChange(self.ui.layout);
+            },
+        })
+        this.ui.setBlockingBackground(true);
         return this;
     }
 

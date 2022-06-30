@@ -18,12 +18,12 @@ class StandartTabElement {
         return this;
     }
 
-    public build(window: UI.Window, style: UiStyle): void {
+    public build(window: UI.Window): void {
         let content = window.getContent();
         content.elements = {};
         this.quests.forEach(element => {
             element.tab = this;
-            content.elements[element.getId()] = element.build(style);
+            content.elements[element.getId()] = element.build(window);
         });
         window.setContent(content);
         window.forceRefresh();

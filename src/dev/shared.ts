@@ -24,6 +24,7 @@ for(let i = 0;i < 15;i++)
         x: 300,
         y: 300,
         texture: "test",
+        lines: ["test1"],
         item: {
             id: ItemID[items[Math.floor(Math.random() * items.length)]],
             count: 1,

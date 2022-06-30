@@ -11,25 +11,40 @@ let width = (function(){
     return size.x;
 })();
 
-
-
 class UiMainBuilder {
     public group: UI.WindowGroup;
     public main: UI.Window;
     public style: UiStyle;
     public ui_left: UiTabsBuilder;
     public ui_right: UiTabsBuilder;
-
+    public quests: {[key: string]: boolean};
 
     constructor(){
         this.main = new UI.Window();
         this.style = new UiStyle();
         this.ui_left = new UiTabsBuilder("left", true);
         this.ui_right = new UiTabsBuilder("right", false);
+        this.quests = {};
 
         this.ui_left.setUiMainBuilder(this, new UI.Window());
         this.ui_right.setUiMainBuilder(this, new UI.Window());
     }
+
+    public isGive(tab: string, quest: string): boolean{
+        return true;
+    }
+
+    public giveQuest(tab: string, quest: string, value: boolean = true, is: boolean = true): UiMainBuilder {
+        if(is && this.isGive(tab, quest))
+            this.quests[tab+":"+quest] = value;
+        else if(!is)
+            this.quests[tab+":"+quest] = value;
+        return this;
+    }
+    public canGiveQuests(tab: string, quest: string): boolean {
+        return !!this.quests[tab+":"+quest];
+    }
+
     public selectedTab(builder: UiTabsBuilder, element: StandartTabElement){
         this.ui_left.selectedTab(builder, element);
         this.ui_right.selectedTab(builder, element);
@@ -82,25 +97,25 @@ class UiMainBuilder {
             }
         })
         this.group.addWindowInstance("background", this.main);
-        this.group.addWindowInstance("left", this.ui_left.build(container, 0, 1000-this.ui_left.getMaxSize()).ui)
-        this.group.addWindowInstance("right", this.ui_right.build(container, 1000-this.ui_right.getMaxSize(), 0).ui)
+        this.group.addWindowInstance("left", this.ui_left.build(container, 0, 1000-this.ui_left.getMaxSize()).ui);
+        this.group.addWindowInstance("right", this.ui_right.build(container, 1000-this.ui_right.getMaxSize(), 0).ui);
+        let location = new UI.WindowLocation({
+            padding: {
+                left: this.ui_left.getMaxSize()+3,
+                right: this.ui_right.getMaxSize()-3
+            }
+        });
+        location.setScroll(location.windowToGlobal(2000), location.windowToGlobal(2000));
         this.group.addWindowInstance("main", new UI.Window({
-            location: {
-                padding: {
-                    left: this.ui_left.getMaxSize()+3,
-                    right: this.ui_right.getMaxSize()-3
-                },
-                scrollX: 2000,
-                scrollY: 2000,
-            },
+            location: location.asScriptable(),
             drawing: [
                 {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}
             ],
             elements: {}
         }))
         let win = this.group.getWindow("main");
+        onSystemUiVisibility(win);
         win.setCloseOnBackPressed(true);
-        
         return this.group;
     }
 

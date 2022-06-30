@@ -78,7 +78,6 @@ class UiDialog extends UiDialogBase {
             let size = super.getSize();
             let y = this.y + size.height;
             if(this.input.length > 0 || this.result.length){
-                
                 let slots1 = this.buildSlots(this.input, -10, "input_");
                 let slots2 = this.buildSlots(this.result, this.style.count_slot*this.style.slot_size, "result_");
                 y = Math.max(slots1, slots2);

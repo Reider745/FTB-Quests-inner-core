@@ -52,6 +52,11 @@
 			"language": "javascript"
 		}
 	],
-	"compile": [],
+	"compile": [
+		{
+            "source": "src/java/*",
+            "type":"java"
+        }
+	],
 	"additional": []
 }
