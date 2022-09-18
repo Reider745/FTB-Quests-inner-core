@@ -11,6 +11,11 @@ let width = (function(){
     return size.x;
 })();
 
+Network.addClientPacket("", function(data: any){
+    if(data.player != Player.get())
+        UiMainBuilder.quests = data.quests;
+});
+
 class UiMainBuilder {
     public group: UI.WindowGroup;
     public main: UI.Window;
@@ -31,21 +36,40 @@ class UiMainBuilder {
         this.ui_right.setUiMainBuilder(this, new UI.Window());
     }
 
-    public isGive(tab: string, quest: string): boolean{
+    public getTab(isLeft: boolean, tab: string): StandartTabElement {
+        if(isLeft)
+            return this.ui_left.getTab(tab);
+        return this.ui_right.getTab(tab);
+    }
+
+    public getQuest(isLeft: boolean, tab: string, quest: string): Quest {
+        let _tab = this.getTab(isLeft, tab);
+        if(_tab != null)
+            return _tab.getQuest(quest);
+        return null;
+    }
+
+    public isGive(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
+        let check = this.getQuest(isLeft, tab, quest);
+        let lines = check.getLines();
+
+        for(const element of lines)
+            if(!this.canQuests(isLeft, tab, element, player) || !this.isGive(isLeft, tab, element, player)) return false;
+
         return true;
     }
 
     public giveQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), value: boolean = true, is: boolean = true): UiMainBuilder {
         if(!UiMainBuilder.quests[this.client_name+":"+player])
             UiMainBuilder.quests[this.client_name+":"+player] = {};
-        if(is && this.isGive(tab, quest))
+        if(is && this.isGive(isLeft, tab, quest, player))
             UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
         else if(!is)
             UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
         Callback.invokeCallback("QuestGive", this.client_name, isLeft, tab, quest, player, value, is);
         Network.sendToAllClients("QuestGive", {
-            value: UiMainBuilder.quests,
-            server: Number()
+            quests: UiMainBuilder.quests,
+            player: Number(Player.get())
          });
         return this;
     }

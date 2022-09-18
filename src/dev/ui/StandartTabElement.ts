@@ -18,6 +18,13 @@ class StandartTabElement {
         return this;
     }
 
+    public getQuest(name: string): Quest {
+        for(const quest of this.quests)
+            if(quest.getId() == name)
+                return quest;
+        return null;
+    }
+
     public build(window: UI.Window): void {
         let content = window.getContent();
         content.drawing = [{type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}];

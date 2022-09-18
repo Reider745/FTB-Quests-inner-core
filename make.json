@@ -52,11 +52,6 @@
 			"language": "javascript"
 		}
 	],
-	"compile": [
-		{
-            "source": "src/java/*",
-            "type":"java"
-        }
-	],
+	"compile": [],
 	"additional": []
 }

@@ -42,7 +42,7 @@ class Quest {
         return this.description.texturePost === undefined ? style.tab.questPost : this.description.texturePost;
     }
     public getLines(): string[] {
-        return this.description.lines;
+        return this.description.lines === undefined ? [] : this.description.lines;
     }
 
     public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number): void{
@@ -54,13 +54,15 @@ class Quest {
         
     }
 
-    public buildLine(window: UI.Window, x1: number, y1: number, x2: number, y2: number, size1: number, size2: number): void {
+    public buildLine(window: UI.Window, x1: number, y1: number, x2: number, y2: number, size1: number, size2: number, name: string): void {
         let self = this;
-        window.getContent().drawing.push({type: "line", x1: x1+size1/2, y1: y1+size1/2, x2: x2+size2/2, y2: y2+size2/2, width: 5});
-        /*window.getContent().drawing.push({type:"custom", onDraw(canvas, scale) {
-            let line = new LineDraw(new Vec2(x1*scale, y1*scale), new Vec2(x2*scale, y2*scale));
-            line.drawLine(canvas, scale);
-        }})*/
+        let color = android.graphics.Color.WHITE;
+        if(this.tab.tab.main.canQuests(this.tab.tab.canLeft(), this.tab.getId(), name)){
+            color = android.graphics.Color.YELLOW;
+            if(this.tab.tab.main.canQuests(this.tab.tab.canLeft(), this.tab.getId(), this.getId()))
+                color = android.graphics.Color.GREEN;
+        }
+        window.getContent().drawing.push(line([x1+size1/2, y1+size1/2], [x2+size2/2, y2+size2/2], 15, color));
     }
     
     public build(window: UI.Window): any {
@@ -68,7 +70,7 @@ class Quest {
         let content = window.getContent();
         for(let i in this.description.lines){
             let name: string = this.description.lines[i];
-            this.buildLine(window, content.elements[name].x, content.elements[name].y, this.getX(), this.getY(), content.elements[name].size, this.getSize());
+            this.buildLine(window, content.elements[name].x, content.elements[name].y, this.getX(), this.getY(), content.elements[name].size, this.getSize(), name);
         }
         let slot: UI.UISlotElement = {type: "slot", bitmap: this.tab.tab.main.canQuests(this.tab.tab.canLeft(), this.tab.getId(), this.getId()) ? this.getTexturePost(this.tab.tab.main.style) : this.getTexture(this.tab.tab.main.style), source: this.getItem(), x: this.getX(), y: this.getY(), size: this.getSize(), visual: true, clicker: {
             onClick(position, container: any, tileEntity, window: any, canvas, scale) {

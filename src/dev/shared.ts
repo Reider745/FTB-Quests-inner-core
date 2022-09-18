@@ -22,7 +22,7 @@ for(let i = 0;i < 15;i++)
     })).addQuest(new Quest({
         id: "test2",
         x: 300,
-        y: 300,
+        y: 50,
         texture: "test",
         lines: ["test1"],
         item: {
@@ -41,6 +41,10 @@ ItemContainer.registerScreenFactory("FTBQuests.Main", (container, name) => {
     return main.build(container);
 });
 Callback.addCallback("ItemUse", function(coords, item, block, is, player){
+    if(item.id == 280){
+        AchievementAPI.giveClient();
+        return;
+    }
     if(item.id == 264)
         main.giveQuest(true, "test0", "test1", player, true, true);
     else if(item.id == 263)

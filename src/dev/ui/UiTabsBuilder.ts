@@ -14,6 +14,12 @@ class UiTabsBuilder {
         this.prefix = prefix;
         this.isLeft = isLeft;
     }
+    public getTab(name: string): StandartTabElement {
+        for (const element of this.elements)
+            if(element.getId() == name)
+                return element;
+        return null;
+    }
     public addRender(element: StandartTabElement): UiTabsBuilder {
         element.setUiTabsBuilder(this);
         this.elements.push(element);
