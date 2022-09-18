@@ -22,11 +22,22 @@ class StandartTabElement {
         let content = window.getContent();
         content.drawing = [{type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}];
         content.elements = {};
+
+        let width: number = 0;
+        let heigth: number = 0;
         this.quests.forEach(element => {
             element.tab = this;
-            content.elements[element.getId()] = element.build(window);
+            let object = element.build(window);
+            alert(object.x+ " " + object.size)
+            width = Math.max(width, object.x+object.size);
+            heigth = Math.max(heigth, object.y+object.size);
+            content.elements[element.getId()] = object;
         });
+        alert(width + " " + heigth);
         window.setContent(content);
+        let location = window.getLocation();
+        location.setScroll(location.globalToWindow(width), location.globalToWindow(heigth));
+        window.updateScrollDimensions();
         window.forceRefresh();
     }
 
