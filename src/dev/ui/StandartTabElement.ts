@@ -28,17 +28,15 @@ class StandartTabElement {
         this.quests.forEach(element => {
             element.tab = this;
             let object = element.build(window);
-            alert(object.x+ " " + object.size)
             width = Math.max(width, object.x+object.size);
             heigth = Math.max(heigth, object.y+object.size);
             content.elements[element.getId()] = object;
         });
-        alert(width + " " + heigth);
         window.setContent(content);
-        let location = window.getLocation();
-        location.setScroll(location.globalToWindow(width), location.globalToWindow(heigth));
-        window.updateScrollDimensions();
         window.forceRefresh();
+        let location = window.getLocation();
+        location.setScroll(width, heigth);
+        window.updateScrollDimensions();
     }
 
     public getId(): string {

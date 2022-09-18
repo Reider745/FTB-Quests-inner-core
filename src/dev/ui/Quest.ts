@@ -45,12 +45,12 @@ class Quest {
         return this.description.lines;
     }
 
-    public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number){
+    public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number): void{
         let dialog = new UiDialog("Тестовый квест и сообщение.\nOk?\nНу как тебе от 0 до 5?", "Описание квеста\nОк?");
         dialog.style.background = [.25, 0, 0, 0];
         dialog.openCenter();
     }
-    public onLongClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number){
+    public onLongClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number): void{
         
     }
 

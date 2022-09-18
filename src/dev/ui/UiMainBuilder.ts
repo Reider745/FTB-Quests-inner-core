@@ -105,8 +105,6 @@ class UiMainBuilder {
             }
         })
         this.group.addWindowInstance("background", this.main);
-        this.group.addWindowInstance("left", this.ui_left.build(container, 0, 1000-this.ui_left.getMaxSize()).ui);
-        this.group.addWindowInstance("right", this.ui_right.build(container, 1000-this.ui_right.getMaxSize(), 0).ui);
         this.group.addWindowInstance("main", new UI.Window({
             location: {
                 padding: {
@@ -120,8 +118,10 @@ class UiMainBuilder {
                 {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}
             ],
             elements: {}
-        }))
-        let win: any = this.group.getWindow("main");
+        }));
+        this.group.addWindowInstance("left", this.ui_left.build(container, 0, 1000-this.ui_left.getMaxSize()).ui);
+        this.group.addWindowInstance("right", this.ui_right.build(container, 1000-this.ui_right.getMaxSize(), 0).ui);
+        let win = this.group.getWindow("main");
         onSystemUiVisibility(win);
         win.setCloseOnBackPressed(true);
         return this.group;

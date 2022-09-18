@@ -21,8 +21,8 @@ for(let i = 0;i < 15;i++)
         }
     })).addQuest(new Quest({
         id: "test2",
-        x: 1000,
-        y: 1000,
+        x: 300,
+        y: 300,
         texture: "test",
         lines: ["test1"],
         item: {
