@@ -9,6 +9,7 @@ ui/UiStyle.ts
 ui/UiTabsBuilder.ts
 ui/StandartTabElement.ts
 ui/UiMainBuilder.ts
+ui/Achievement.ts
 
 api/UiJsonParser.ts
 

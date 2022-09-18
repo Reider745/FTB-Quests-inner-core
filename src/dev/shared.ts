@@ -7,12 +7,12 @@ ModAPI.registerAPI("FTBQuests", {
 });
 
 let items = Object.keys(ItemID);
-let main = new UiMainBuilder();
+let main = new UiMainBuilder("client_name");
 for(let i = 0;i < 15;i++)
     main.addRenderLeft(new StandartTabElement("test"+i).addQuest(new Quest({
         id: "test1",
-        x: 100,
-        y: 100,
+        x: 50,
+        y: 50,
         texture: "test",
         item: {
             id: ItemID[items[Math.floor(Math.random() * items.length)]],
@@ -21,8 +21,8 @@ for(let i = 0;i < 15;i++)
         }
     })).addQuest(new Quest({
         id: "test2",
-        x: 300,
-        y: 300,
+        x: 200,
+        y: 200,
         texture: "test",
         lines: ["test1"],
         item: {
@@ -41,6 +41,10 @@ ItemContainer.registerScreenFactory("FTBQuests.Main", (container, name) => {
     return main.build(container);
 });
 Callback.addCallback("ItemUse", function(coords, item, block, is, player){
+    if(item.id == 264)
+        main.giveQuest(true, "test0", "test1", player, true, true);
+    else if(item.id == 263)
+        main.giveQuest(true, "test0", "test2", player, true, true);
     let container: ItemContainer = new ItemContainer();
     main.buildServer(container);
     container.setClientContainerTypeName("FTBQuests.Main");

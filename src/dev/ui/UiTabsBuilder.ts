@@ -24,6 +24,9 @@ class UiTabsBuilder {
         this.ui = ui;
         return this;
     }
+    public canLeft(): boolean {
+        return this.isLeft
+    }
     public buildServer(container: ItemContainer): UiTabsBuilder {
         this.elements.forEach(element => {
             if(element.isDisplay())

@@ -20,6 +20,7 @@ class StandartTabElement {
 
     public build(window: UI.Window): void {
         let content = window.getContent();
+        content.drawing = [{type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}];
         content.elements = {};
         this.quests.forEach(element => {
             element.tab = this;

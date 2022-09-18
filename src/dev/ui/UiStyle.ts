@@ -32,6 +32,7 @@ class UiTabStyle {
     public tab_selected: string;
     public scale: number;
     public quest: string;
+    public questPost: string;
 
     constructor(){
         this.frame = "default_container_frame";
@@ -39,6 +40,7 @@ class UiTabStyle {
         this.tab_selected = "default_container_frame_alpha";
         this.scale = .5;
         this.quest = "offline";
+        this.questPost = "default_container_frame";
     }
 };
 class UiStyle {

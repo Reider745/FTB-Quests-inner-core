@@ -17,14 +17,15 @@ class UiMainBuilder {
     public style: UiStyle;
     public ui_left: UiTabsBuilder;
     public ui_right: UiTabsBuilder;
-    public quests: {[key: string]: boolean};
+    public client_name: string;
+    static quests: {[key: string]: {[key: string]: boolean}} = {};
 
-    constructor(){
+    constructor(client_name:string){
         this.main = new UI.Window();
         this.style = new UiStyle();
         this.ui_left = new UiTabsBuilder("left", true);
         this.ui_right = new UiTabsBuilder("right", false);
-        this.quests = {};
+        this.client_name = client_name;
 
         this.ui_left.setUiMainBuilder(this, new UI.Window());
         this.ui_right.setUiMainBuilder(this, new UI.Window());
@@ -34,15 +35,22 @@ class UiMainBuilder {
         return true;
     }
 
-    public giveQuest(tab: string, quest: string, value: boolean = true, is: boolean = true): UiMainBuilder {
+    public giveQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), value: boolean = true, is: boolean = true): UiMainBuilder {
+        if(!UiMainBuilder.quests[this.client_name+":"+player])
+            UiMainBuilder.quests[this.client_name+":"+player] = {};
         if(is && this.isGive(tab, quest))
-            this.quests[tab+":"+quest] = value;
+            UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
         else if(!is)
-            this.quests[tab+":"+quest] = value;
+            UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
+        Callback.invokeCallback("QuestGive", this.client_name, isLeft, tab, quest, player, value, is);
+        Network.sendToAllClients("QuestGive", {
+            value: UiMainBuilder.quests,
+            server: Number()
+         });
         return this;
     }
-    public canGiveQuests(tab: string, quest: string): boolean {
-        return !!this.quests[tab+":"+quest];
+    public canQuests(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
+        return !!UiMainBuilder.quests[this.client_name+":"+player] && !!UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest];
     }
 
     public selectedTab(builder: UiTabsBuilder, element: StandartTabElement){
@@ -105,7 +113,6 @@ class UiMainBuilder {
                 right: this.ui_right.getMaxSize()-3
             }
         });
-        location.setScroll(location.windowToGlobal(2000), location.windowToGlobal(2000));
         this.group.addWindowInstance("main", new UI.Window({
             location: location.asScriptable(),
             drawing: [

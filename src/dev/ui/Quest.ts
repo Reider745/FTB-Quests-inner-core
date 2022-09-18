@@ -5,6 +5,7 @@ interface IQuest {
     size?: number,
     item?: ItemInstance,
     texture?: string
+    texturePost?: string
     lines?: string[]
 }
 
@@ -37,6 +38,9 @@ class Quest {
     public getTexture(style: UiStyle): string {
         return this.description.texture === undefined ? style.tab.quest : this.description.texture;
     }
+    public getTexturePost(style: UiStyle): string {
+        return this.description.texturePost === undefined ? style.tab.questPost : this.description.texturePost;
+    }
     public getLines(): string[] {
         return this.description.lines;
     }
@@ -52,10 +56,11 @@ class Quest {
 
     public buildLine(window: UI.Window, x1: number, y1: number, x2: number, y2: number, size1: number, size2: number): void {
         let self = this;
-        window.getContent().drawing.push({type:"custom", onDraw(canvas, scale) {
+        window.getContent().drawing.push({type: "line", x1: x1+size1/2, y1: y1+size1/2, x2: x2+size2/2, y2: y2+size2/2, width: 5});
+        /*window.getContent().drawing.push({type:"custom", onDraw(canvas, scale) {
             let line = new LineDraw(new Vec2(x1*scale, y1*scale), new Vec2(x2*scale, y2*scale));
             line.drawLine(canvas, scale);
-        }})
+        }})*/
     }
     
     public build(window: UI.Window): any {
@@ -63,10 +68,9 @@ class Quest {
         let content = window.getContent();
         for(let i in this.description.lines){
             let name: string = this.description.lines[i];
-            content.elements[name].x 
             this.buildLine(window, content.elements[name].x, content.elements[name].y, this.getX(), this.getY(), content.elements[name].size, this.getSize());
         }
-        let slot: UI.UISlotElement = {type: "slot", bitmap: this.getTexture(this.tab.tab.main.style), source: this.getItem(), x: this.getX(), y: this.getY(), size: this.getSize(), visual: true, clicker: {
+        let slot: UI.UISlotElement = {type: "slot", bitmap: this.tab.tab.main.canQuests(this.tab.tab.canLeft(), this.tab.getId(), this.getId()) ? this.getTexturePost(this.tab.tab.main.style) : this.getTexture(this.tab.tab.main.style), source: this.getItem(), x: this.getX(), y: this.getY(), size: this.getSize(), visual: true, clicker: {
             onClick(position, container: any, tileEntity, window: any, canvas, scale) {
                 self.onClick(position, container, tileEntity, window, canvas, scale);
             },
