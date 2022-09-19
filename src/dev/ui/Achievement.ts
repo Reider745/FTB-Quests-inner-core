@@ -45,6 +45,10 @@ interface AchievementAPICache {
 	item: ItemInstance;
 };
 
+Network.addClientPacket("AchievementAPI.giveClient", function(data: AchievementAPICache){
+	AchievementAPI.giveClient(data.title, data.description, data.item);
+});
+
 class AchievementAPI {
 	private start: UI.Window;
 	private window: UI.Window;
@@ -270,6 +274,15 @@ class AchievementAPI {
 			description: description,
 			item: item
 		});
+	}
+	static give(player: number, title: string, description: string, item: ItemInstance){
+		let client = Network.getClientForPlayer(player);
+		if(client != null)
+			client.send("AchievementAPI.giveClient", {
+				title: title,
+				description: description,
+				item: item
+			});
 	}
 };
 /*function AchievementAPI(){

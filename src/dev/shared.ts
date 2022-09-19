@@ -42,7 +42,7 @@ ItemContainer.registerScreenFactory("FTBQuests.Main", (container, name) => {
 });
 Callback.addCallback("ItemUse", function(coords, item, block, is, player){
     if(item.id == 280){
-        AchievementAPI.giveClient("Test Display Name", "Test super puper description\nnew line", {id: 5, data: 1, count: 1});
+        AchievementAPI.give(player, "Test Display Name", "Test super puper description\nnew line", {id: 5, data: 1, count: 1});
         return;
     }
     if(item.id == 264)
