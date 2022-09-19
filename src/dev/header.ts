@@ -77,6 +77,7 @@ let line = (function () {
         if (deltaPos[1] < 0) angle = -angle
         return {
             type: 'custom',
+            isLine: true,
             onDraw: function (canvas, scale) {
                 let paint = new Paint()
                 paint.setStyle(Paint.Style.FILL)

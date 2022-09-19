@@ -16,7 +16,6 @@ class UiDialogStyle extends UiDialogBaseStyle {
 
 interface Item {
     item: ItemInstance;
-    
 }
 class UiDialog extends UiDialogBase {
     private input: Item[];
@@ -31,6 +30,17 @@ class UiDialog extends UiDialogBase {
         this.description = description;
         this.style = new UiDialogStyle();
     }
+
+    public setInput(inputs: Item[]): UiDialog {
+        this.input = inputs;
+        return this;
+    }
+
+    public setResult(results: Item[]): UiDialog {
+        this.result = results;
+        return this;
+    }
+
     public getSize(): Size {
         let size = super.getSize();
         try {

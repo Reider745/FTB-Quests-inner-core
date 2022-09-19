@@ -45,10 +45,16 @@ class Quest {
         return this.description.lines === undefined ? [] : this.description.lines;
     }
 
+    private dialog: UiDialogBase = new UiDialog("", "");
+
+    public setDialog(dialog: UiDialogBase): Quest{
+        this.dialog = dialog;
+        return this;
+    }
+
     public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number): void{
-        let dialog = new UiDialog("Тестовый квест и сообщение.\nOk?\nНу как тебе от 0 до 5?", "Описание квеста\nОк?");
-        dialog.style.background = [.25, 0, 0, 0];
-        dialog.openCenter();
+        this.dialog.style.background = [.25, 0, 0, 0];
+        this.dialog.openCenter();
     }
     public onLongClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number): void{
         

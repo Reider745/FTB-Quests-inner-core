@@ -49,16 +49,28 @@ class StandartTabElement {
     public getId(): string {
         return this.id;
     }
+    private name: string;
     public getDisplayName(): string {
-        return "Display Name";
+        return this.name || "Display Name";
+    }
+    public setDisplayName(name: string): StandartTabElement {
+        this.name = name;
+        return this;
     }
     public isDisplay(): boolean {
         return true;
     }
+
+    private item: ItemInstance;
     public getItem(): ItemInstance {
         let items = Object.keys(ItemID)
-        return {id: ItemID[items[Math.floor(Math.random() * items.length)]], count: 1, data: 0};
+        return this.item || {id: 0, count: 1, data: 0};
     }
+    public setItem(item: ItemInstance): StandartTabElement {
+        this.item = item;
+        return this;
+    }
+
     public updateSlotItem(container: ItemContainer): void {}
     public updateSlotClient(container: ItemContainer): void {}
     public getTextureSlot(style: UiStyle): string{

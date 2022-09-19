@@ -1,5 +1,6 @@
 /// <reference path="./ui/UiMainBuilder.ts"/>
 /// <reference path="./ui/StandartTabElement.ts"/>
+/// <reference path="./ui/TabCloseElement.ts"/>
 /// <reference path="./ui/Quest.ts"/>
 
 ModAPI.registerAPI("FTBQuests", {
@@ -9,7 +10,7 @@ ModAPI.registerAPI("FTBQuests", {
 let items = Object.keys(ItemID);
 let main = new UiMainBuilder("client_name");
 for(let i = 0;i < 15;i++)
-    main.addRenderLeft(new StandartTabElement("test"+i).addQuest(new Quest({
+    main.addRenderLeft(new StandartTabElement("test"+i).setDisplayName("Test Name").setItem({id: 5, data: 0, count: 1}).addQuest(new Quest({
         id: "test1",
         x: 50,
         y: 50,
@@ -32,7 +33,7 @@ for(let i = 0;i < 15;i++)
         }
     })));
 
-main.addRenderRight(new StandartTabElement("test"));
+main.addRenderRight(new TabCloseElement("close"));
 main.addRenderRight(new StandartTabElement("test2"));
 main.addRenderRight(new StandartTabElement("test3"));
 main.addRenderRight(new StandartTabElement("test4"));

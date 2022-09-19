@@ -8,6 +8,7 @@ ui/Quest.ts
 ui/UiStyle.ts
 ui/UiTabsBuilder.ts
 ui/StandartTabElement.ts
+ui/TabCloseElement.ts
 ui/UiMainBuilder.ts
 ui/Achievement.ts
 
