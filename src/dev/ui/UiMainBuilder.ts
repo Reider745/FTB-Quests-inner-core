@@ -54,26 +54,29 @@ class UiMainBuilder {
         let lines = check.getLines();
 
         for(const element of lines)
-            if(!this.canQuests(isLeft, tab, element, player) || !this.isGive(isLeft, tab, element, player)) return false;
+            if(!this.canQuest(isLeft, tab, element, player) || !this.isGive(isLeft, tab, element, player)) return false;
 
         return true;
     }
 
-    public giveQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), value: boolean = true, is: boolean = true): UiMainBuilder {
+    public giveQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), value: boolean = true, is: boolean = true): boolean {
+        let result = true;
         if(!UiMainBuilder.quests[this.client_name+":"+player])
             UiMainBuilder.quests[this.client_name+":"+player] = {};
         if(is && this.isGive(isLeft, tab, quest, player))
             UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
         else if(!is)
             UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
+        else 
+            result = false;
         Callback.invokeCallback("QuestGive", this.client_name, isLeft, tab, quest, player, value, is);
         Network.sendToAllClients("QuestGive", {
             quests: UiMainBuilder.quests,
             player: Number(Player.get())
          });
-        return this;
+        return result;
     }
-    public canQuests(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
+    public canQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
         return !!UiMainBuilder.quests[this.client_name+":"+player] && !!UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest];
     }
 

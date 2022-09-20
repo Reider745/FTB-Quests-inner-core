@@ -25,8 +25,8 @@ class UiDialog extends UiDialogBase {
 
     constructor(title: string, description: string = "", x: number = 0, y: number = 0){
         super(title, x, y);
-        this.input = [{item:{id:1,count:1,data:0}}, {item:{id:1,count:1,data:0}}, {item:{id:1,count:1,data:0}}, {item:{id:1,count:1,data:0}}, {item:{id:1,count:1,data:0}}];
-        this.result = [{item:{id:5,count:1,data:0}}, {item:{id:5,count:1,data:0}}, {item:{id:5,count:1,data:0}}];
+        this.input = [];
+        this.result = [];
         this.description = description;
         this.style = new UiDialogStyle();
     }

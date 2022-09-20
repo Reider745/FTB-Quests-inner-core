@@ -1,0 +1,13 @@
+{
+    "shared": {
+        "name": "recipe_check",
+		"include": [
+
+		]
+    },
+
+    "depends": [
+    	"innercore",
+    	"nativejs"
+	]
+}

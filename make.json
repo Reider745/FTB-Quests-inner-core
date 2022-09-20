@@ -52,6 +52,20 @@
 			"language": "javascript"
 		}
 	],
-	"compile": [],
-	"additional": []
+	"compile": [
+		{
+            "source": "src/native/*",
+            "type": "native"
+        },
+        {
+            "source": "src/java/*",
+            "type":"java"
+        }
+	],
+	"additional": [
+		{
+			"source": "json/test.json",
+			"targetDir": "."
+		}
+	]
 }

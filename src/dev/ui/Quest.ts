@@ -63,9 +63,9 @@ class Quest {
     public buildLine(window: UI.Window, x1: number, y1: number, x2: number, y2: number, size1: number, size2: number, name: string): void {
         let self = this;
         let color = android.graphics.Color.WHITE;
-        if(this.tab.tab.main.canQuests(this.tab.tab.canLeft(), this.tab.getId(), name)){
+        if(this.tab.tab.main.canQuest(this.tab.tab.canLeft(), this.tab.getId(), name)){
             color = android.graphics.Color.YELLOW;
-            if(this.tab.tab.main.canQuests(this.tab.tab.canLeft(), this.tab.getId(), this.getId()))
+            if(this.tab.tab.main.canQuest(this.tab.tab.canLeft(), this.tab.getId(), this.getId()))
                 color = android.graphics.Color.GREEN;
         }
         window.getContent().drawing.push(line([x1+size1/2, y1+size1/2], [x2+size2/2, y2+size2/2], 15, color));
@@ -78,7 +78,7 @@ class Quest {
             let name: string = this.description.lines[i];
             this.buildLine(window, content.elements[name].x, content.elements[name].y, this.getX(), this.getY(), content.elements[name].size, this.getSize(), name);
         }
-        let slot: UI.UISlotElement = {type: "slot", bitmap: this.tab.tab.main.canQuests(this.tab.tab.canLeft(), this.tab.getId(), this.getId()) ? this.getTexturePost(this.tab.tab.main.style) : this.getTexture(this.tab.tab.main.style), source: this.getItem(), x: this.getX(), y: this.getY(), size: this.getSize(), visual: true, clicker: {
+        let slot: UI.UISlotElement = {type: "slot", bitmap: this.tab.tab.main.canQuest(this.tab.tab.canLeft(), this.tab.getId(), this.getId()) ? this.getTexturePost(this.tab.tab.main.style) : this.getTexture(this.tab.tab.main.style), source: this.getItem(), x: this.getX(), y: this.getY(), size: this.getSize(), visual: true, clicker: {
             onClick(position, container: any, tileEntity, window: any, canvas, scale) {
                 self.onClick(position, container, tileEntity, window, canvas, scale);
             },

@@ -1,0 +1,46 @@
+{
+    "type": "main",
+    "identifier": "test_ui",
+    "item": {
+        "createItem": {
+            "id": "test",
+            "name": "Test item",
+            "texture": {
+                "name": "test",
+                "meta": 0
+            }
+        },
+        "ui_item": "ItemID.test"
+    },
+    "tabs": [
+        {
+            "name": "test",
+            "identifier": "test_tab",
+            "item": {"id": 1, "count": 1, "data": 0},
+            "isLeft": true,
+            "quests": [
+                {
+                    "identifier": "test_quest",
+                    "name": "test",
+                    "item": {"id": 1, "count": 1, "data": 0},
+                    "x": 50,
+                    "y": 50,
+                    "dialog": {
+                        "input": [],
+                        "output": [],
+                        "description": "Test description",
+                        "title": "Name"
+                    },
+                    "description": "Test description",
+                    "give":[
+                        {
+                            "type": "recipe",
+                            "items": ["264"]
+                        }
+                    ],
+                    "lines": []
+                }
+            ]
+        }
+    ]
+}
