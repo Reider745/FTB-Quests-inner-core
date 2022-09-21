@@ -24,13 +24,22 @@ class TextureBuilder {
         TextureSource.put(result, out);
     }
 };
-TextureBuilder.paintTextures("test", [
+TextureBuilder.paintTextures("ftbquests_default_quest", [
     {
         bitmap: "shapes.circle.background",
-        color: [220, 219, 219]
+        color: [87, 87, 87]
     },{
         bitmap: "shapes.circle.outline",
-        color: [128, 255, 0]
+        color: [66, 66, 66]
+    }
+], 128, 128);
+TextureBuilder.paintTextures("ftbquests_default_quest_post", [
+    {
+        bitmap: "shapes.circle.background",
+        color: [46, 122, 49]
+    },{
+        bitmap: "shapes.circle.outline",
+        color: [44, 115, 44]
     }
 ], 128, 128);
 TextureBuilder.setAlphaTexture("default_container_frame", "default_container_frame_alpha", .3, 16, 16);

@@ -155,9 +155,9 @@ class AchievementAPI {
 		let title = UiDialogBase.getSize(this.title, 25);
 		let decription = UiDialogBase.getSize(this.decription, 15);
 
-		let width = Math.max(title.width+85, decription.width);
+		let width = Math.max(title.width+85, decription.width+30);
 		const size_slot = 55;
-		let heigth = decription.height+size_slot+15;
+		let heigth = decription.height+size_slot+18;
 		if(this.animatiom_type = 0)
 			var x = 1000-width, y = end ? this.end_y : -heigth;
 		else

@@ -39,8 +39,8 @@ class UiTabStyle {
         this.tab_slot = "_default_slot_empty";
         this.tab_selected = "default_container_frame_alpha";
         this.scale = .5;
-        this.quest = "offline";
-        this.questPost = "default_container_frame";
+        this.quest = "ftbquests_default_quest";
+        this.questPost = "ftbquests_default_quest_post";
     }
 };
 class UiStyle {

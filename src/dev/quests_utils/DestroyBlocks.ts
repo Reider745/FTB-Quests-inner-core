@@ -28,7 +28,7 @@ class DestroyBlocks {
 		this.blocks[player][id+":"+data] = true;
 	}
 
-	static registerRecipeCheck(ui: UiMainBuilder, blocks: string[], isLeft: boolean, tab: string, quest: string, title: string, description?: string): void {
+	static registerDestroyBlocks(ui: UiMainBuilder, blocks: string[], isLeft: boolean, tab: string, quest: string, title: string, description?: string): void {
 		DestroyBlocks.register_checks.push({
 			ui: ui,
 			blocks: blocks,

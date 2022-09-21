@@ -1,12 +1,12 @@
 interface IQuestRecipes {
     type: "recipe",
-    items: number[]
+    items: string[]
 }
 
 interface IQuestBlockDestroy {
     type: "destroy",
-    blocks: {
-        id: number,
+    block: {
+        id: string,
         data: number
     }
 }
@@ -15,14 +15,15 @@ interface IUiQuest {
     type?: "quest";
     identifier: string,
     name: string,
-    item: ItemInstance,
+    item: {id: any, data: number, count: number},
     x: number,
     y: number,
     give:(IQuestRecipes | IQuestBlockDestroy)[],
     lines: string[],
+    size: number,
     dialog: {
-        input: [],
-        output: [],
+        input: {id: string, data: number, count: number}[],
+        output:  {id: string, data: number, count: number}[],
         description: string,
         title: string
     },
@@ -33,7 +34,7 @@ interface IUiTabs {
     type?: "tab";
     name: string,
     identifier: string,
-    item: ItemInstance,
+    item: {id: any, data: number, count: number},
     isLeft: boolean,
     quests:  (string | IUiQuest) [];
 };
@@ -78,53 +79,97 @@ class UiJsonParser {
             for(let i in object.tabs){
                 let element = object.tabs[i];
                 if(typeof element == "string")
-                    new UiJsonParser(UiJsonParser.getDirectory(path+element));
-                else
+                    new UiJsonParser(UiJsonParser.getDirectory(path)+element);
+                else{
+                    for(let i in element.quests){
+                        let _element = element.quests[i];
+                        if(typeof _element == "string")
+                            new UiJsonParser(UiJsonParser.getDirectory(path)+_element);
+                        else
+                            UiJsonParser.quest[path+"_"+i] = {path, quest: _element};
+                    }
                     UiJsonParser.tab[path+"_"+element.identifier] = {path, tab: element};
+                }
             }
         }else if(object.type == "tab"){
             for(let i in object.quests){
                 let element = object.quests[i];
                 if(typeof element == "string")
-                    new UiJsonParser(UiJsonParser.getDirectory(path+element));
+                    new UiJsonParser(UiJsonParser.getDirectory(path)+element);
                 else
-                    UiJsonParser.quest[path+"_"+element.identifier] = {path, quest: element};
+                    UiJsonParser.quest[path+"_"+i] = {path, quest: element};
             }
-            UiJsonParser[path+"_"+object.identifier] = object;
-        }
+            UiJsonParser.tab[path+"_"+object.identifier] = {path, tab: object};
+        }else if(object.type == "quest")
+            UiJsonParser.quest[path] = {path, quest: object};
+    }
+
+    static getIds(ids: string[] ): number[] {
+        let result = [];
+        for(let i in ids)
+            result.push(eval(ids[i]));
+        return result;
+    }
+    static getId(ids: string): number {
+        return eval(ids);
     }
 };
 
 new UiJsonParser(__dir__+"test.json");
 
 Callback.addCallback("PostLoaded", function(){
-    for(const key in UiJsonParser.tab){
-        let element = UiJsonParser.tab[key];
-        let tab = new StandartTabElement(element.tab.identifier);
-        tab.setDisplayName(element.tab.name);
-        tab.setItem(element.tab.item);
-        UiJsonParser.tab_build[key] = {
-            isLeft: element.tab.isLeft,
-            tab: tab
-        };
-    }
     for(const key in UiJsonParser.quest){
         let element = UiJsonParser.quest[key].quest;
+        element.item.id = eval(element.item.id);
         let quest = new Quest({
             id: element.identifier,
             item: element.item,
             x: element.x,
             y: element.y,
             lines: element.lines,
+            size: element.size
 
         });
         let dialog = new UiDialog(element.dialog.title, element.dialog.description);
-        dialog.setInput(element.dialog.input);
-        dialog.setResult(element.dialog.output);
+        let items = [];
+        for(let i in element.dialog.input){
+            element.dialog.input[i].id = eval(element.dialog.input[i].id);
+            items.push({item: element.dialog.input[i]});
+        }
+        dialog.setInput(items);
+        items = [];
+        for(let i in element.dialog.output){
+            element.dialog.output[i].id = eval(element.dialog.output[i].id);
+            items.push({item: element.dialog.output[i]});
+        }
+        dialog.setResult(items);
         quest.setDialog(dialog);
         
         UiJsonParser.quest_build[key] = {
             quest: quest
+        };
+    }
+    for(const key in UiJsonParser.tab){
+        let element = UiJsonParser.tab[key];
+        let tab = new StandartTabElement(element.tab.identifier);
+        tab.setDisplayName(element.tab.name);
+        element.tab.item.id = eval(element.tab.item.id);
+        tab.setItem(element.tab.item);
+
+        let quests = [];
+        for(let i in element.tab.quests){
+            let quest = element.tab.quests[i];
+
+            if(typeof quest == "string")
+                quests.push(UiJsonParser.getDirectory(element.path)+quest);
+            else
+                quests.push(element.path+"_"+i);
+        }
+
+        UiJsonParser.tab_build[key] = {
+            isLeft: element.tab.isLeft,
+            tab: tab,
+            quests
         };
     }
     for(const key in UiJsonParser.mains){
@@ -145,6 +190,19 @@ Callback.addCallback("PostLoaded", function(){
             else
                 var id = UiJsonParser.mains[key].path+"_"+tab.identifier;
             let _tab = UiJsonParser.tab_build[id];
+            for(let i in _tab.quests){
+                let quest = UiJsonParser.quest_build[_tab.quests[i]].quest;
+                let object = UiJsonParser.quest[_tab.quests[i]];
+                for(let i in object.quest.give){
+                    let give = object.quest.give[i];
+                    if(give.type == "recipe")
+                        RecipeCheck.registerRecipeCheck(main, UiJsonParser.getIds(give.items), _tab.isLeft, _tab.tab.getId(), quest.getId(), object.quest.name, object.quest.description);
+                    else if(give.type == "destroy")
+                        DestroyBlocks.registerDestroyBlocks(main, [eval(give.block.id)+":"+give.block.data], _tab.isLeft, _tab.tab.getId(), quest.getId(), object.quest.name, object.quest.description);
+                }
+                _tab.tab.addQuest(quest);
+            }
+            
             if(_tab.isLeft)
                 main.addRenderLeft(_tab.tab);
             else

@@ -2,6 +2,7 @@
 #include <vector>
 #include <jni.h>
 #include <java.h>
+#include <logger.h>
 
 int indexOf(std::vector<int> arr, int value){
     for (int i = 0;i < arr.size();i++)
@@ -27,8 +28,7 @@ class RecipesList {
         static jintArray get(JNIEnv* env, long long player) {
             std::vector<int>& ids = getIds(player);
             jintArray array = env->NewIntArray(ids.size());
-            for (int i = 0;i < ids.size();i++)
-                env->SetIntArrayRegion(array, i, 1, (jint*) ids.at(i));
+            env->SetIntArrayRegion(array, 0, ids.size(), (jint*) ids.data());
             return array;
         }
         static jlongArray get(JNIEnv* env) {
@@ -38,10 +38,9 @@ class RecipesList {
                 players.push_back(it->first);
                 it++;
             }
- 
             jlongArray array = env->NewLongArray(players.size());
-            for (int i = 0;i < ids.size();i++)
-                env->SetLongArrayRegion(array, i, 1, (jlong*) players.at(i));
+            env->SetLongArrayRegion(array, 0, players.size(), (jlong*) players.data());
+            
             return array;
         }
         static bool is(long long player, std::vector<int>& items){

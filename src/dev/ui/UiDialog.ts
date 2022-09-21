@@ -45,19 +45,18 @@ class UiDialog extends UiDialogBase {
         let size = super.getSize();
         try {
             size.height+=30;
-
-            let count_line = Math.ceil(this.input.length / this.style.count_slot);
-            if(count_line > Math.ceil(this.result.length / this.style.count_slot))
-                count_line = Math.ceil(this.result.length / this.style.count_slot);
-            size.height+=(count_line+1)*this.style.slot_size;
+            this.style.count_slot = Math.min(Math.max(this.input.length, this.result.length), this.style.count_slot);
+            let count_line = Math.max(Math.ceil(this.input.length / this.style.count_slot), Math.ceil(this.result.length / this.style.count_slot));
+            if(this.input.length % this.style.count_slot != 0 || this.result.length % this.style.count_slot != 0)
+                count_line++;
+            size.height+=count_line*this.style.slot_size;
         
             let slot = this.style.slot_size;
             if(count_line >= 1 && size.width < slot*(this.style.count_slot*2)+10)
                 size.width=slot*(this.style.count_slot*2)+10;
             let description = UiDialogBase.getSize(this.description, this.style.description_size);
             if(this.description != ""){
-                if(size.width < description.width)
-                    size.width = description.width;
+                size.width = Math.max(size.width, description.width+40);
                 size.height += description.height+20;
             }
         } catch (error) {}
@@ -87,9 +86,9 @@ class UiDialog extends UiDialogBase {
             let _size = this.getSize();
             let size = super.getSize();
             let y = this.y + size.height;
-            if(this.input.length > 0 || this.result.length){
+            if(this.input.length > 0 || this.result.length > 0){
                 let slots1 = this.buildSlots(this.input, -10, "input_");
-                let slots2 = this.buildSlots(this.result, this.style.count_slot*this.style.slot_size, "result_");
+                let slots2 = this.buildSlots(this.result, _size.width/2-10, "result_");
                 y = Math.max(slots1, slots2);
                 if(this.description != "")
                     y+=10;

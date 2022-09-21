@@ -16,18 +16,19 @@
         {
             "name": "test",
             "identifier": "test_tab",
-            "item": {"id": 1, "count": 1, "data": 0},
+            "item": {"id": "1", "count": 1, "data": 0},
             "isLeft": true,
             "quests": [
                 {
                     "identifier": "test_quest",
                     "name": "test",
-                    "item": {"id": 1, "count": 1, "data": 0},
+                    "item": {"id": "1", "count": 1, "data": 0},
                     "x": 50,
                     "y": 50,
+                    "size": 100,
                     "dialog": {
-                        "input": [],
-                        "output": [],
+                        "input": [{"id": "1", "count": 1, "data": 0}],
+                        "output": [{"id": "5", "count": 1, "data": 0}],
                         "description": "Test description",
                         "title": "Name"
                     },
