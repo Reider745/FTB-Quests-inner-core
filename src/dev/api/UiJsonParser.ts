@@ -24,6 +24,7 @@ interface IUiQuest {
     dialog: {
         input: {id: string, data: number, count: number}[],
         output:  {id: string, data: number, count: number}[],
+        give_item: boolean,
         description: string,
         title: string
     },
@@ -42,6 +43,7 @@ interface IUiTabs {
 interface IUiMain {
     type?: "main";
     identifier: string;
+    save: boolean;
     item: {
         createItem?: {
             id: string,
@@ -179,9 +181,6 @@ Callback.addCallback("PostLoaded", function(){
             Item.createItem(element.item.createItem.id, element.item.createItem.name, element.item.createItem.texture);
         }
         let main = new UiMainBuilder(element.identifier);
-        ItemContainer.registerScreenFactory("FTBQuests."+element.identifier, (container, name) => {
-            return main.build(container);
-        });
         main.addRenderRight(new TabCloseElement("close_button"));
         for(let i in element.tabs){
             let tab = element.tabs[i];
@@ -193,6 +192,13 @@ Callback.addCallback("PostLoaded", function(){
             for(let i in _tab.quests){
                 let quest = UiJsonParser.quest_build[_tab.quests[i]].quest;
                 let object = UiJsonParser.quest[_tab.quests[i]];
+                let items = [];
+                for(let i in object.quest.dialog.output){
+                    object.quest.dialog.output[i].id = eval(object.quest.dialog.output[i].id);
+                    items.push(object.quest.dialog.output[i]);
+                }
+                if(object.quest.dialog.give_item)
+                    GiveItems.registerGive(main, _tab.isLeft, _tab.tab.getId(), quest.getId(), items);
                 for(let i in object.quest.give){
                     let give = object.quest.give[i];
                     if(give.type == "recipe")
@@ -208,12 +214,10 @@ Callback.addCallback("PostLoaded", function(){
             else
                 main.addRenderRight(_tab.tab);
         }
-       
-        Item.registerUseFunction(eval(element.item.ui_item), function(coords, item, block, player){
-            let container: ItemContainer = new ItemContainer();
-            main.buildServer(container);
-            container.setClientContainerTypeName("FTBQuests."+element.identifier);
-            container.openFor(Network.getClientForPlayer(player), "main");
-        });
+        if(element.save)
+            main.registerSave();
+        main.registerItem(eval(element.item.ui_item));
+        Callback.invokeCallback("MainRegister", main.getClientName());
     }
+    Callback.invokeCallback("EndRegisterUi");
 });

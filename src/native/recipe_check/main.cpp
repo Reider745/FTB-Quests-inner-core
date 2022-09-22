@@ -50,16 +50,11 @@ class RecipesList {
             while (it != array.end()){
                 int id = *it;
                 int i = indexOf(items, id);
-                if(i != -1){
+                if(i != -1)
                     items.erase(items.begin() + i);
-                    it++;
-                    continue;
-                }
-                return false;
+                it++;
             }
-            if(items.size() == 0)
-                return true;
-            return false;
+            return items.size() == 0;
         }
         static void clear(){
             ids.clear();

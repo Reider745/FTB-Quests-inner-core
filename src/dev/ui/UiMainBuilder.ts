@@ -36,6 +36,10 @@ class UiMainBuilder {
         this.ui_right.setUiMainBuilder(this, new UI.Window());
     }
 
+    public getClientName(): string {
+        return this.client_name;
+    }
+
     public getTab(isLeft: boolean, tab: string): StandartTabElement {
         if(isLeft)
             return this.ui_left.getTab(tab);
@@ -61,25 +65,55 @@ class UiMainBuilder {
 
     public giveQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), value: boolean = true, is: boolean = true): boolean {
         let result = true;
-        if(!UiMainBuilder.quests[this.client_name+":"+player])
-            UiMainBuilder.quests[this.client_name+":"+player] = {};
+        if(!UiMainBuilder.quests[this.client_name])
+            UiMainBuilder.quests[this.client_name] = {};
         if(is && this.isGive(isLeft, tab, quest, player))
-            UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
+            UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
         else if(!is)
-            UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest] = value;
+            UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
         else 
             result = false;
-        Callback.invokeCallback("QuestGive", this.client_name, isLeft, tab, quest, player, value, is);
+        Callback.invokeCallback("QuestGive", this, isLeft, tab, quest, player, value, is, result);
         Network.sendToAllClients("QuestGive", {
             quests: UiMainBuilder.quests,
             player: Number(Player.get())
          });
         return result;
     }
-    public canQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
-        return !!UiMainBuilder.quests[this.client_name+":"+player] && !!UiMainBuilder.quests[this.client_name+":"+player][isLeft+":"+tab+":"+quest];
+    public give(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), description: string, title: string){
+        if(!this.canQuest(isLeft, tab, quest, player) && this.giveQuest(isLeft, tab, quest, player, true, true) && description != undefined && title != undefined)
+			AchievementAPI.give(player, title,description, this.getQuest(isLeft, tab, quest).getItem());
     }
-
+    public canQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
+        return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player];
+    }
+    public registerSave(): UiMainBuilder {
+        let self = this;
+        Saver.addSavesScope("FTBQuests."+this.client_name, 
+            function(scope: any){
+                UiMainBuilder.quests[self.client_name]= scope.quests || {};
+            },
+            function(){
+                return {
+                    quests: UiMainBuilder.quests[self.client_name]
+                };
+            }
+        );
+        return this;
+    }
+    public registerItem(id: number | string): UiMainBuilder {
+        let self = this;
+        ItemContainer.registerScreenFactory("FTBQuests."+id+"."+self.client_name, (container) => {
+            return self.build(container);
+        });
+        Item.registerUseFunction(id, function(coords, item, block, player){
+            let container: ItemContainer = new ItemContainer();
+            self.buildServer(container);
+            container.setClientContainerTypeName("FTBQuests."+id+"."+self.client_name);
+            container.openFor(Network.getClientForPlayer(player), "main");
+        });
+        return this;
+    }
     public selectedTab(builder: UiTabsBuilder, element: StandartTabElement){
         this.ui_left.selectedTab(builder, element);
         this.ui_right.selectedTab(builder, element);

@@ -4,8 +4,9 @@
 /// <reference path="./ui/Quest.ts"/>
 /// <reference path="./quests_utils/RecipeCheck.ts"/>
 /// <reference path="./quests_utils/DestroyBlocks.ts"/>
+/// <reference path="./quests_utils/GiveItems.ts"/>
 
-Saver.addSavesScope(__name__,
+Saver.addSavesScope("FTBQuests",
 	function read(scope: any){
         RecipesUtil.clear();
         let keys = Object.keys(scope.recipes);
@@ -48,6 +49,7 @@ ModAPI.registerAPI("FTBQuests", {
     UiJsonParser: UiJsonParser,
     UiStyle: UiStyle,
     CloseButtonStyle: CloseButtonStyle,
+    GiveItems: GiveItems,
     requireGlobal(cmd){
         return eval(cmd);
     }

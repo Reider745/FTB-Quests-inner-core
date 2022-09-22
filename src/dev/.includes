@@ -12,6 +12,8 @@ ui/TabCloseElement.ts
 ui/UiMainBuilder.ts
 ui/Achievement.ts
 
+quests_utils/GiveItems.ts
+
 api/UiJsonParser.ts
 
 shared.ts
