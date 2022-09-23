@@ -8,7 +8,6 @@
 
 Saver.addSavesScope("FTBQuests",
 	function read(scope: any){
-        RecipesUtil.clear();
         let keys = Object.keys(scope.recipes);
 		for(let i in keys){
 			let recipes = scope.recipes[keys[i]];
@@ -31,6 +30,10 @@ Saver.addSavesScope("FTBQuests",
 			recipes: recipes,
 			blocks: DestroyBlocks.blocks||{}
 		}
+});
+Callback.addCallback('LevelLeft', function(){
+    RecipesUtil.clear();
+    DestroyBlocks.blocks = {};
 });
 
 ModAPI.registerAPI("FTBQuests", {

@@ -1,4 +1,6 @@
 /// <reference path="./UiStyle.ts"/>
+/// <reference path="./quest_editor/TabEditor.ts"/>
+/// <reference path="./quest_editor/QuestEditor.ts"/>
 
 let height = (function(){
     let size = new android.graphics.Point();
@@ -24,6 +26,18 @@ class UiMainBuilder {
     public ui_right: UiTabsBuilder;
     public client_name: string;
     static quests: {[key: string]: {[key: string]: boolean}} = {};
+    private debug: boolean = false;
+
+    public setDebug(debug: boolean): UiMainBuilder {
+        this.debug = debug;
+        return this;
+    }
+
+    public isDebug(): boolean {
+        return this.debug;
+    }
+
+    public path: string;
 
     constructor(client_name:string){
         this.main = new UI.Window();
@@ -34,6 +48,13 @@ class UiMainBuilder {
 
         this.ui_left.setUiMainBuilder(this, new UI.Window());
         this.ui_right.setUiMainBuilder(this, new UI.Window());
+        let self = this;
+        Callback.addCallback("MainRegister", function(name: string){
+            if(client_name == name && self.isDebug()){
+                self.addRenderLeft(new TabEditor("tab_added"));
+                self.addRenderRight(new QuestEditor("quest_added"));
+            }
+        });
     }
 
     public getClientName(): string {
@@ -99,6 +120,9 @@ class UiMainBuilder {
                 };
             }
         );
+        Callback.addCallback('LevelLeft', function(){
+            UiMainBuilder.quests[self.client_name] = {};
+        });        
         return this;
     }
     public registerItem(id: number | string): UiMainBuilder {

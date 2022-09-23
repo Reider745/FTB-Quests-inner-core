@@ -3,6 +3,8 @@ class StandartTabElement {
     protected quests: Quest[];
     public tab: UiTabsBuilder;
 
+    public path: string;
+
     constructor(id: string){
         this.id = id;
         this.quests = [];

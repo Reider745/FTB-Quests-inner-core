@@ -16,6 +16,8 @@ class Quest {
     protected description: IQuest;
     public tab: StandartTabElement;
 
+    public path: string;
+
     constructor(description: IQuest){
         this.description = description;
         this.description.lines = this.description.lines === undefined ? [] : this.description.lines;

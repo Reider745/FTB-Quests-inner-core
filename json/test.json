@@ -2,6 +2,7 @@
     "type": "main",
     "identifier": "test_ui",
     "save": false,
+    "debug": true,
     "item": {
         "createItem": {
             "id": "test",

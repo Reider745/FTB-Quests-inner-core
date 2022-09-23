@@ -43,3 +43,7 @@ TextureBuilder.paintTextures("ftbquests_default_quest_post", [
     }
 ], 128, 128);
 TextureBuilder.setAlphaTexture("default_container_frame", "default_container_frame_alpha", .3, 16, 16);
+TextureBuilder.setAlphaTexture("_button_next_48x24", "_button_next_48x24_alpha", .4, 48, 24);
+TextureBuilder.setAlphaTexture("_button_next_48x24p", "_button_next_48x24p_alpha", .4, 48, 24);
+TextureBuilder.setAlphaTexture("_button_prev_48x24", "_button_prev_48x24_alpha", .4, 48, 24);
+TextureBuilder.setAlphaTexture("_button_prev_48x24p", "_button_prev_48x24p_alpha", .4, 48, 24);

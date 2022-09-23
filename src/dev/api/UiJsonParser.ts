@@ -44,6 +44,7 @@ interface IUiMain {
     type?: "main";
     identifier: string;
     save: boolean;
+    debug: boolean;
     item: {
         createItem?: {
             id: string,
@@ -132,6 +133,7 @@ Callback.addCallback("PostLoaded", function(){
             size: element.size
 
         });
+        quest.path = UiJsonParser.quest[key].path;
         let dialog = new UiDialog(element.dialog.title, element.dialog.description);
         let items = [];
         for(let i in element.dialog.input){
@@ -157,6 +159,7 @@ Callback.addCallback("PostLoaded", function(){
         tab.setDisplayName(element.tab.name);
         element.tab.item.id = eval(element.tab.item.id);
         tab.setItem(element.tab.item);
+        tab.path = element.path;
 
         let quests = [];
         for(let i in element.tab.quests){
@@ -181,7 +184,9 @@ Callback.addCallback("PostLoaded", function(){
             Item.createItem(element.item.createItem.id, element.item.createItem.name, element.item.createItem.texture);
         }
         let main = new UiMainBuilder(element.identifier);
+        main.path = UiJsonParser.mains[key].path;
         main.addRenderRight(new TabCloseElement("close_button"));
+        main.setDebug(element.debug);
         for(let i in element.tabs){
             let tab = element.tabs[i];
             if(typeof tab == "string")
