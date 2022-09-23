@@ -27,6 +27,7 @@ class UiMainBuilder {
     public client_name: string;
     static quests: {[key: string]: {[key: string]: boolean}} = {};
     private debug: boolean = false;
+    public container: ItemContainer;
 
     public setDebug(debug: boolean): UiMainBuilder {
         this.debug = debug;
@@ -167,6 +168,7 @@ class UiMainBuilder {
         this.ui_right.buildServer(container);
     }
     public build(container: ItemContainer): UI.WindowGroup {
+        this.container = container
         this.group = new UI.WindowGroup();
         let self = this;
         let paint = new android.graphics.Paint();
