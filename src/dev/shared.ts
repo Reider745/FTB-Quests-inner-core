@@ -53,6 +53,19 @@ ModAPI.registerAPI("FTBQuests", {
     UiStyle: UiStyle,
     CloseButtonStyle: CloseButtonStyle,
     GiveItems: GiveItems,
+    UiDialogSetting: UiDialogSetting,
+    Keyboard: Keyboard,
+    SelectedItemDialog: SelectedItemDialog,
+    Setting: {
+        SettingElement: SettingElement,
+        SettingButtonElement: SettingButtonElement,
+        SettingIconElement: SettingIconElement,
+        SettingItemsElement: SettingItemsElement,
+        SettingKeyboardElement: SettingKeyboardElement,
+        SettingNumbersElement: SettingNumbersElement,
+        SettingStringsElement: SettingStringsElement,
+        SettingTextElement: SettingTextElement
+    },
     requireGlobal(cmd){
         return eval(cmd);
     }

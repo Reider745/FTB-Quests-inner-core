@@ -128,8 +128,16 @@ class SettingItemsElement extends SettingElement {
         return size;
     }
 
+    protected getItems(): ItemSelected[] {
+        let result = [];
+        for(let i in this.items)
+            if(this.items[i] !== null)
+                result.push(this.items[i]);
+        return result;
+    }
+
     public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
-        dialog.configs[this.configName] = this.items; 
+        dialog.configs[this.configName] = this.getItems(); 
 
         let slots: UI.Elements[] = [];
         let count = 0;
@@ -149,7 +157,7 @@ class SettingItemsElement extends SettingElement {
                         new SelectedItemDialog("Selected item")
                             .getSelectedItem(function(item){
                                 self.items.unshift(item);
-                                dialog.configs[self.configName] = self.items; 
+                                dialog.configs[self.configName] = self.getItems(); 
                                 dialog.close();
                                 dialog.build();
                                 dialog.openCenter();
@@ -166,7 +174,7 @@ class SettingItemsElement extends SettingElement {
                         if(a != i)
                             items.push(self.items[i]);
                     self.items = items;
-                    dialog.configs[self.configName] = self.items; 
+                    dialog.configs[self.configName] = self.getItems(); 
                     dialog.close();
                     dialog.build();
                     dialog.openCenter();
@@ -223,12 +231,13 @@ class SettingNumbersElement extends SettingElement {
 
     public _value = 0;
 
-    constructor(configName: string, min: number, max: number, value: number){
+    constructor(configName: string, min: number, max: number, value: number, _value: number = 0){
         super();
         this.configName = configName;
         this.min = min;
         this.max = max;
         this.value = value;
+        this._value = _value;
     }
     public getSize(): Size {
         return {
@@ -269,9 +278,17 @@ class SettingNumbersElement extends SettingElement {
 class SettingStringsElement extends SettingNumbersElement {
     protected strings: string[];
 
-    constructor(configName: string, strings: string[]){
-        super(configName, 0, strings.length-1, 1);
+    constructor(configName: string, strings: string[], value: string = ""){
+        let index = strings.indexOf(value);
+        super(configName, 0, strings.length-1, 1, index == -1 ? 0 : index);
         this.strings = strings;
+    }
+
+    public getSize(): Size {
+        return {
+            height: 24,
+            width: 48*2+UiDialogBase.getSize(this.strings[this._value], 24).width+2
+        }
     }
 
     public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {

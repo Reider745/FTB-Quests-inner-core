@@ -5,14 +5,14 @@
     "debug": true,
     "item": {
         "createItem": {
-            "id": "test",
-            "name": "Test item",
+            "id": "ftb_book",
+            "name": "Quest book",
             "texture": {
-                "name": "test",
+                "name": "ftb_book",
                 "meta": 0
             }
         },
-        "ui_item": "ItemID.test"
+        "ui_item": "ItemID.ftb_book"
     },
     "translations": [
         "ru.lang"

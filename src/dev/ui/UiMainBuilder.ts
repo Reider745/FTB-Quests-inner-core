@@ -68,6 +68,10 @@ class UiMainBuilder {
         return this.ui_right.getTab(tab);
     }
 
+    public getAllQuest(isLeft: boolean, tab: string): string[] {
+        return this.getTab(isLeft, tab).getAllQuest();
+    }
+
     public getQuest(isLeft: boolean, tab: string, quest: string): Quest {
         let _tab = this.getTab(isLeft, tab);
         if(_tab != null)
@@ -139,7 +143,11 @@ class UiMainBuilder {
         });
         return this;
     }
+
+    public selected_tab: StandartTabElement = null;
+
     public selectedTab(builder: UiTabsBuilder, element: StandartTabElement){
+        this.selected_tab = element;
         this.ui_left.selectedTab(builder, element);
         this.ui_right.selectedTab(builder, element);
     }

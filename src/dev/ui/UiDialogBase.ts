@@ -61,8 +61,10 @@ class UiDialogBase {
         if(size.height < this.ui.location.height)
             this.setPos((1000 / 2) - (size.width / 2), (this.ui.location.height / 2) - (size.height / 2)).build().open();
         else{
-            this.ui.location.setScroll(0, size.height);
             this.setPos((1000 / 2) - (size.width / 2), 0).build().open();
+            let location = this.ui.getLocation();
+            location.setScroll(0, size.height);
+            this.ui.updateWindowLocation();
         }   
     }
     public isDisplay(x: number = this.x, y: number = this.y): boolean{
@@ -76,6 +78,9 @@ class UiDialogBase {
         let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
         let size = this.getSize();
         this.ui = new UI.Window({
+            location: {
+                forceScrollY: true
+            },
             drawing: [
                 {type: "color", color: android.graphics.Color.argb(this.style.background[0], this.style.background[1], this.style.background[2], this.style.background[3])}
             ],

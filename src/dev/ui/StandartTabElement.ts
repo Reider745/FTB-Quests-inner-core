@@ -15,6 +15,13 @@ class StandartTabElement {
         return this;
     }
 
+    public getAllQuest(): string[] {
+        let result = [];
+        for(let i in this.quests)
+            result.push(this.quests[i].getId());
+        return result;
+    }
+
     public addQuest(quest: Quest): StandartTabElement {
         this.quests.push(quest);
         return this;

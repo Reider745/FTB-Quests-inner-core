@@ -64,7 +64,7 @@
 	],
 	"additional": [
 		{
-			"source": "json/test.json",
+			"source": "json/book.json",
 			"targetDir": "."
 		},
 		{

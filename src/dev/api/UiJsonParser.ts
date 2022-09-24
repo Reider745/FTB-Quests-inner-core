@@ -92,7 +92,7 @@ class UiJsonParser {
                         let text = objects[i].split(":=");
 
                         translations[text[0]] = translations[text[0]] || {};
-                        translations[text[0]][lang] = text[1];
+                        translations[text[0]][lang] = text[1].replace("\\n", "\n");
                     }
                 }
                 for(let key in translations)
@@ -137,7 +137,7 @@ class UiJsonParser {
     }
 };
 
-new UiJsonParser(__dir__+"test.json");
+new UiJsonParser(__dir__+"book.json");
 
 Callback.addCallback("PostLoaded", function(){
     for(const key in UiJsonParser.quest){

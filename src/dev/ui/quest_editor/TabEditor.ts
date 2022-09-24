@@ -48,6 +48,7 @@ class TabEditor extends StandartTabElement {
                             count: 1,
                             data: 0
                         });
+                        tab.path = directory+text+".json";
                         self_tab.main.addRenderLeft(tab);
                         self_tab.main.group.close();
                         self_tab.main.build(self_tab.main.container).open();
