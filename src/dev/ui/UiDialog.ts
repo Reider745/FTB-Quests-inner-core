@@ -27,7 +27,7 @@ class UiDialog extends UiDialogBase {
         super(title, x, y);
         this.input = [];
         this.result = [];
-        this.description = description;
+        this.description = Translation.translate(description);
         this.style = new UiDialogStyle();
     }
 

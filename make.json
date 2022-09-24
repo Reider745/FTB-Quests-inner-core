@@ -66,6 +66,10 @@
 		{
 			"source": "json/test.json",
 			"targetDir": "."
+		},
+		{
+			"source": "json/ru.lang",
+			"targetDir": "."
 		}
 	]
 }

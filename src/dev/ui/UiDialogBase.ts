@@ -22,14 +22,14 @@ Translation.addTranslation("Awards", {
 
 class UiDialogBase {
     protected message: string;
-    protected x: number;
-    protected y: number;
+    public x: number;
+    public y: number;
     protected ui: UI.Window;
     protected font: com.zhekasmirnov.innercore.api.mod.ui.types.Font;
     public style: UiDialogBaseStyle;
 
     constructor(message: string, x: number = 0, y: number = 0){
-        this.message = message;
+        this.message = Translation.translate(message);
         this.x = x;
         this.y = y;
         this.style = new UiDialogBaseStyle();
@@ -58,7 +58,12 @@ class UiDialogBase {
     }
     public openCenter(location: UI.WindowLocation = new UI.WindowLocation()){
         let size = this.getSize();
-        this.setPos((1000 / 2) - (size.width / 2), (this.ui.location.height / 2) - (size.height / 2)).build().open();
+        if(size.height < this.ui.location.height)
+            this.setPos((1000 / 2) - (size.width / 2), (this.ui.location.height / 2) - (size.height / 2)).build().open();
+        else{
+            this.ui.location.setScroll(0, size.height);
+            this.setPos((1000 / 2) - (size.width / 2), 0).build().open();
+        }   
     }
     public isDisplay(x: number = this.x, y: number = this.y): boolean{
         let size = this.getSize();
@@ -102,7 +107,7 @@ class UiDialogBase {
     }
 
     public setMessage(message: string): UiDialogBase {
-        this.message = message;
+        this.message = Translation.translate(message);
         return this;
     }
     public getUi(): UI.Window {

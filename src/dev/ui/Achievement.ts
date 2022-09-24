@@ -95,7 +95,7 @@ class AchievementAPI {
 	}
 
 	public setTitle(title: string): AchievementAPI {
-		this.title= title;
+		this.title= Translation.translate(title);
 		return this;
 	}
 
@@ -104,7 +104,7 @@ class AchievementAPI {
 	}
 
 	public setDescrption(description: string): AchievementAPI {
-		this.decription = description;
+		this.decription = Translation.translate(description);
 		return this;
 	}
 

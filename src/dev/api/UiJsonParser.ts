@@ -56,6 +56,7 @@ interface IUiMain {
         },
         ui_item: string
     },
+    translations?: string[];
     tabs: (string | IUiTabs) [];
 }
 
@@ -79,6 +80,24 @@ class UiJsonParser {
         if(object.type == "main"){
             UiJsonParser.mains[path] = {path, main: object};
 
+            if(object.translations){
+                let translations = {};
+                for(let i in object.translations){
+                    let file = object.translations[i];
+                    let _path = UiJsonParser.getDirectory(path)+file;
+                    let lang = file.split("/").pop().split(".")[0];
+
+                    let objects = FileTools.ReadText(_path).split("\n");
+                    for(let i = 0;i < objects.length;i++){
+                        let text = objects[i].split(":=");
+
+                        translations[text[0]] = translations[text[0]] || {};
+                        translations[text[0]][lang] = text[1];
+                    }
+                }
+                for(let key in translations)
+                    Translation.addTranslation(key, translations[key]);
+            }
             for(let i in object.tabs){
                 let element = object.tabs[i];
                 if(typeof element == "string")
@@ -102,7 +121,7 @@ class UiJsonParser {
                 else
                     UiJsonParser.quest[path+"_"+i] = {path, quest: element};
             }
-            UiJsonParser.tab[path+"_"+object.identifier] = {path, tab: object};
+            UiJsonParser.tab[path] = {path, tab: object};
         }else if(object.type == "quest")
             UiJsonParser.quest[path] = {path, quest: object};
     }
@@ -164,7 +183,6 @@ Callback.addCallback("PostLoaded", function(){
         let quests = [];
         for(let i in element.tab.quests){
             let quest = element.tab.quests[i];
-
             if(typeof quest == "string")
                 quests.push(UiJsonParser.getDirectory(element.path)+quest);
             else
@@ -190,7 +208,7 @@ Callback.addCallback("PostLoaded", function(){
         for(let i in element.tabs){
             let tab = element.tabs[i];
             if(typeof tab == "string")
-                var id = tab;
+                var id = UiJsonParser.getDirectory(UiJsonParser.mains[key].path)+tab;
             else
                 var id = UiJsonParser.mains[key].path+"_"+tab.identifier;
             let _tab = UiJsonParser.tab_build[id];
