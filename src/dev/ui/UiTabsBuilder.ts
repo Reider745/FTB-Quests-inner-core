@@ -20,6 +20,26 @@ class UiTabsBuilder {
                 return element;
         return null;
     }
+
+    public getAllTab(): string[] {
+        let tabs = [];
+        for(let i in this.elements)
+            tabs.push(this.elements[i].getId());
+        return tabs;
+    }
+
+    public getIdQuest(id: string, count: number = 0, id_org: string = id): string{
+        for(let tab in this.elements){
+            let elements = this.elements[tab].getAllQuest();
+            for(let quest in elements)
+                if(id == elements[quest]){
+                    count++;
+                    return this.getIdQuest(id_org+"_"+count, count, id_org);
+                }
+        }
+        return id;
+    }
+
     public addRender(element: StandartTabElement): UiTabsBuilder {
         element.setUiTabsBuilder(this);
         this.elements.push(element);

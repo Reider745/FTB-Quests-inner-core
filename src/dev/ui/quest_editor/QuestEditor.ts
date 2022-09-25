@@ -16,7 +16,7 @@ class QuestEditor extends StandartTabElement {
         return "nbt.byte_array_closed";
     }
     public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: globalAndroid.graphics.Canvas, scale: number): boolean {
-        if(this.tab.main.selected_tab == null || this.tab.main.selected_tab.path === undefined)
+        if(this.tab.main.selected_tab === null || this.tab.main.selected_tab.path === undefined)
             return false;
         let ui = new UiDialogSetting("Quest editor")
             .addElement(new SettingTextElement("Quest name:", 10))
@@ -51,11 +51,12 @@ class QuestEditor extends StandartTabElement {
         }
         let self_tab = this;
         function tab_save(object: IUiTabs, configs: any, path: string) {
-            object.quests.push("quests/"+configs.name+"_"+self_tab.tab.main.selected_tab.getId()+".json");
+            let id = self_tab.tab.main.selected_tab.tab.getIdQuest(configs.name);
+            object.quests.push("quests/"+id+"_"+self_tab.tab.main.selected_tab.getId()+".json");
             let save = {
                 type: "quest",
                 item: {id: configs.icon.fullId, count: 1, data: 0},
-                identifier: configs.name,
+                identifier: id,
                 name: configs.name,
                 x: configs.x,
                 y: configs.y,
@@ -104,7 +105,7 @@ class QuestEditor extends StandartTabElement {
             };
 
             let quest = new Quest({
-                id: configs.name,
+                id: id,
                 x: configs.x, 
                 y: configs.y,
                 size: configs.size,
@@ -132,7 +133,7 @@ class QuestEditor extends StandartTabElement {
 
             if(!FileTools.isExists(UiJsonParser.getDirectory(path)+"quests"))
                 FileTools.mkdir(UiJsonParser.getDirectory(path)+"quests");
-            FileTools.WriteJSON(UiJsonParser.getDirectory(path)+"quests/"+configs.name+"_"+self_tab.tab.main.selected_tab.getId()+".json", save, true);
+            FileTools.WriteJSON(UiJsonParser.getDirectory(path)+"quests/"+id+"_"+self_tab.tab.main.selected_tab.getId()+".json", save, true);
         }
         ui.setCloseHandler(function(self){
             let path =  self_tab.tab.main.selected_tab.path;

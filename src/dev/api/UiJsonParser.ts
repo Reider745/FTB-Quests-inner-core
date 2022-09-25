@@ -18,7 +18,7 @@ interface IUiQuest {
     item: {id: any, data: number, count: number},
     x: number,
     y: number,
-    give:(IQuestRecipes | IQuestBlockDestroy)[],
+    give?:(IQuestRecipes | IQuestBlockDestroy)[],
     lines: string[],
     size: number,
     dialog: {
@@ -92,7 +92,7 @@ class UiJsonParser {
                         let text = objects[i].split(":=");
 
                         translations[text[0]] = translations[text[0]] || {};
-                        translations[text[0]][lang] = text[1].replace("\\n", "\n");
+                        translations[text[0]][lang] = (text[1]||"").replace("\\n", "\n");
                     }
                 }
                 for(let key in translations)
@@ -222,13 +222,14 @@ Callback.addCallback("PostLoaded", function(){
                 }
                 if(object.quest.dialog.give_item)
                     GiveItems.registerGive(main, _tab.isLeft, _tab.tab.getId(), quest.getId(), items);
-                for(let i in object.quest.give){
-                    let give = object.quest.give[i];
-                    if(give.type == "recipe")
-                        RecipeCheck.registerRecipeCheck(main, UiJsonParser.getIds(give.items), _tab.isLeft, _tab.tab.getId(), quest.getId(), object.quest.name, object.quest.description);
-                    else if(give.type == "destroy")
-                        DestroyBlocks.registerDestroyBlocks(main, [eval(give.block.id)+":"+give.block.data], _tab.isLeft, _tab.tab.getId(), quest.getId(), object.quest.name, object.quest.description);
-                }
+                if(object.quest.give)
+                    for(let i in object.quest.give){
+                        let give = object.quest.give[i];
+                        if(give.type == "recipe")
+                            RecipeCheck.registerRecipeCheck(main, UiJsonParser.getIds(give.items), _tab.isLeft, _tab.tab.getId(), quest.getId(), object.quest.name, object.quest.description);
+                        else if(give.type == "destroy")
+                            DestroyBlocks.registerDestroyBlocks(main, [eval(give.block.id)+":"+give.block.data], _tab.isLeft, _tab.tab.getId(), quest.getId(), object.quest.name, object.quest.description);
+                    }
                 _tab.tab.addQuest(quest);
             }
             

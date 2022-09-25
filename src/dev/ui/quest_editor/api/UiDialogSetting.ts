@@ -258,6 +258,14 @@ class SettingNumbersElement extends SettingElement {
                     dialog.close();
                     dialog.build();
                     dialog.openCenter();
+                },
+                onLongClick(){
+                    self._value = Math.max(self._value-(self.value*5), self.min);
+
+                    dialog.configs[this.configName] = self._value;
+                    dialog.close();
+                    dialog.build();
+                    dialog.openCenter();
                 }
             }},
             {type: "text", text: String(this._value), font: {size: 24, color: android.graphics.Color.WHITE}, x: 49, y: 0},
@@ -265,6 +273,13 @@ class SettingNumbersElement extends SettingElement {
                 onClick(){
                     self._value = Math.min(self._value+self.value, self.max);
 
+                    dialog.configs[this.configName] = self._value;
+                    dialog.close();
+                    dialog.build();
+                    dialog.openCenter();
+                },
+                onLongClick(){
+                    self._value = Math.min(self._value+(self.value*5), self.max);
                     dialog.configs[this.configName] = self._value;
                     dialog.close();
                     dialog.build();

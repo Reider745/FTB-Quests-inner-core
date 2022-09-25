@@ -62,6 +62,23 @@ class UiMainBuilder {
         return this.client_name;
     }
 
+    public getIdTab(id: string, count: number = 0, org_id = id): string {
+        let tabs = this.ui_left.getAllTab();
+        for(let i in tabs)
+            if(tabs[i] == id){
+                count++;
+                return this.getIdTab(org_id+"_"+count, count, org_id);
+            }
+        
+        tabs = this.ui_right.getAllTab();
+        for(let i in tabs)
+            if(tabs[i] == id){
+                count++;
+                return this.getIdTab(org_id+"_"+count, count, org_id);
+            }
+        return id;
+    }
+
     public getTab(isLeft: boolean, tab: string): StandartTabElement {
         if(isLeft)
             return this.ui_left.getTab(tab);

@@ -49,7 +49,7 @@ class UiDialog extends UiDialogBase {
             let count_line = Math.max(Math.ceil(this.input.length / this.style.count_slot), Math.ceil(this.result.length / this.style.count_slot));
             if(this.input.length % this.style.count_slot != 0 || this.result.length % this.style.count_slot != 0)
                 count_line++;
-            size.height+=count_line*this.style.slot_size;
+            size.height+=(count_line*this.style.slot_size)||0;
         
             let slot = this.style.slot_size;
             if(count_line >= 1 && size.width < slot*(this.style.count_slot*2)+10)

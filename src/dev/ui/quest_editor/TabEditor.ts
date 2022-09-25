@@ -29,26 +29,29 @@ class TabEditor extends StandartTabElement {
                     if(json.type == "main"){
                         let directory = UiJsonParser.getDirectory(path);
                         let text = configs.name;
+                        let id = self_tab.main.getIdTab(text);
                         let item = configs.icon;
-                        json.tabs.push(text+".json");
+                        json.tabs.push("tabs/"+id+".json");
                         FileTools.WriteJSON(path, json, true);
-                        FileTools.WriteJSON(directory+text+".json", {
+                        if(!FileTools.isExists(directory+"tabs"))
+                            FileTools.mkdir(directory+"tabs");
+                        FileTools.WriteJSON(directory+"tabs/"+id+".json", {
                             "type": "tab",
                             "name": text,
-                            "identifier": text,
+                            "identifier": id,
                             "item": {"id": item.fullId, "count": 1, "data": 0},
                             "isLeft": true,
                             "quests": []
                         }, true);
 
-                        let tab = new StandartTabElement(text);
+                        let tab = new StandartTabElement(id);
                         tab.setDisplayName(text)
                         tab.setItem({
                             id: item._id,
                             count: 1,
                             data: 0
                         });
-                        tab.path = directory+text+".json";
+                        tab.path = directory+"tabs/"+id+".json";
                         self_tab.main.addRenderLeft(tab);
                         self_tab.main.group.close();
                         self_tab.main.build(self_tab.main.container).open();
