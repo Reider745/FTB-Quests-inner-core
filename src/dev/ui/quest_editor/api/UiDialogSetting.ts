@@ -315,13 +315,18 @@ class SettingStringsElement extends SettingNumbersElement {
     }
 };
 
+interface IUiDialogSetting {
+    newHeigth: boolean,
+    element: SettingElement
+};
+
 class UiDialogSetting extends UiDialogBase {
-    private elements: SettingElement[] = [];
+    private elements: IUiDialogSetting[] = [];
     public configs: {[key: string]: any} = {};
     private func: (self: UiDialogSetting) => void = (self) => {};
 
-    public addElement(element: SettingElement): UiDialogSetting {
-        this.elements.push(element);
+    public addElement(element: SettingElement, newHeigth: boolean = true): UiDialogSetting {
+        this.elements.push({element, newHeigth});
         return this;
     }
 
@@ -332,9 +337,14 @@ class UiDialogSetting extends UiDialogBase {
     public getSize(): Size {
         let size = super.getSize();
         for(let i in this.elements){
-            let _size = this.elements[i].getSize();
-            size.width = Math.max(size.width, _size.width + 20);
-            size.height += _size.height + 5;
+            let _size = this.elements[i].element.getSize();
+            if(this.elements[i].newHeigth){
+                size.width = Math.max(size.width, _size.width + 20);
+                size.height += _size.height + 5;
+            }else{
+                size.width += _size.width + 30;
+                size.height = Math.max(size.height, size.height + 5)
+            }
         }
         size.width += 20
         size.height+= 20 + 30;
@@ -353,14 +363,20 @@ class UiDialogSetting extends UiDialogBase {
         let content = this.ui.getContent();
         let heigth = size.height;
         for(let i in this.elements){
-            let elements = this.elements[i].build(this, content, size, _size, "element_"+i+"_");
-            let element_size = this.elements[i].getSize();
+            let elements = this.elements[i].element.build(this, content, size, _size, "element_"+i+"_");
+            let element_size = this.elements[i].element.getSize();
+            let x = 0;
             for(let a in elements){
                 let element = elements[a];
-                
-                element.x += this.x;
-                element.y += this.y+heigth;
-                
+                if(this.elements[i].newHeigth){
+                    x = 0;
+                    element.x += this.x;
+                    element.y += this.y+heigth;
+                }else{
+                    element.x += this.x+x;
+                    element.y += this.y+heigth;
+                    x += element_size.width+5;
+                }
                 content.elements["element_"+i+"_"+a] = element;
             }
             heigth += element_size.height+5;
@@ -382,3 +398,54 @@ class UiDialogSetting extends UiDialogBase {
         return this;
     }
 }
+alert("open")
+new UiDialogSetting("Test 1")
+    .addElement(new SettingKeyboardElement("test", "test"))
+    .addElement(new SettingKeyboardElement("test2", "test2"))
+    .addElement(new SettingTextElement("test text"))
+    .openCenter();
+new UiDialogSetting("Test 2")
+    .addElement(new SettingKeyboardElement("test", "test"))
+    .addElement(new SettingKeyboardElement("test2", "test2"), false)
+    .addElement(new SettingTextElement("test text"))
+    .openCenter();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    

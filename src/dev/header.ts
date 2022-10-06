@@ -58,21 +58,17 @@ let line = (function () {
     let RectF = android.graphics.RectF
     let Paint = android.graphics.Paint
     let lineBitmap = android.graphics.Bitmap.createBitmap(20 * 64, 64, android.graphics.Bitmap.Config.ARGB_8888)
-    let lineSrc = new Rect(0, 0, 20 * 64, 64)
-    Callback.addCallback('PostLoaded', function () {
-        let bitmap = UI.TextureSource.getNullable('dependency')
-        if (bitmap === null) return
-        let canvas = new android.graphics.Canvas(lineBitmap)
-        for (let x = 0; x < 20; x++) {
-            canvas.drawBitmap(bitmap, x * 64, 0, null)
-        }
-    })
+    let lineSrc = new Rect(0, 0, 20 * 64, 64);
+
+    let bitmap = TextureSource.get('dependency');
+    let canvas = new android.graphics.Canvas(lineBitmap)
+    for (let x = 0; x < 20; x++)
+        canvas.drawBitmap(bitmap, x * 64, 0, null);
     return function (posParent, posChild, width, color): any {
         if (typeof width !== 'number' || width <= 0) width = 10
-        let argb = [(color >>> 24) & 0xff, (color >>> 16) & 0xff, (color >>> 8) & 0xff, (color >>> 0) & 0xff]
+        let argb = [android.graphics.Color.alpha(color), android.graphics.Color.red(color), android.graphics.Color.green(color), android.graphics.Color.blue(color)];
         let deltaPos = [posChild[0] - posParent[0], posChild[1] - posParent[1]]
         let dis = Math.sqrt(deltaPos[0] * deltaPos[0] + deltaPos[1] * deltaPos[1])
-        //if (dis <= width) return {}
         let angle = Math.acos(Math.max(Math.min(deltaPos[0]/dis, 1), -1)) * (180 / Math.PI)
         if (deltaPos[1] < 0) angle = -angle
         return {
