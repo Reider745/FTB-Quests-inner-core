@@ -64,7 +64,8 @@ ModAPI.registerAPI("FTBQuests", {
         SettingKeyboardElement: SettingKeyboardElement,
         SettingNumbersElement: SettingNumbersElement,
         SettingStringsElement: SettingStringsElement,
-        SettingTextElement: SettingTextElement
+        SettingTextElement: SettingTextElement,
+        SettingButtonTextElement: SettingButtonTextElement
     },
     requireGlobal(cmd){
         return eval(cmd);

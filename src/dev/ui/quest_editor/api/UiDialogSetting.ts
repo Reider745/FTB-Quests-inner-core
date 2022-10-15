@@ -344,7 +344,7 @@ class SettingButtonTextElement extends SettingTextElement {
         build[0].x += 10;
         build[0].y += 10;
         let self = this;
-        build.unshift({type: "frame", scale: .8, x: 0, y: 0, width: _size.width, height: _size.height, bitmap: this.bitmap, color: android.graphics.Color.argb(this.color[0], this.color[1], this.color[2], this.color[3]), clicker: {
+        build.unshift({type: "frame", scale: .5, x: 0, y: 0, width: _size.width, height: _size.height, bitmap: this.bitmap, color: android.graphics.Color.argb(this.color[0], this.color[1], this.color[2], this.color[3]), clicker: {
             onClick(){
                 self.func();
             }
