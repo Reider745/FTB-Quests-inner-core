@@ -77,6 +77,12 @@ class UiDialogBase {
         let self = this;
         let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
         let size = this.getSize();
+        let display = UI.getContext().getWindowManager().getDefaultDisplay();
+        let dispaly_size = new android.graphics.Point();
+        display.getSize(dispaly_size);
+
+        let location = new UI.WindowLocation();
+
         this.ui = new UI.Window({
             location: {
                 forceScrollY: true
@@ -85,10 +91,14 @@ class UiDialogBase {
                 {type: "color", color: android.graphics.Color.argb(this.style.background[0], this.style.background[1], this.style.background[2], this.style.background[3])}
             ],
             elements: {
-                "background": {type: "image", bitmap:"_default_slot_empty", x: 0, y: 0, width: 1000, height: 999999, clicker: {
-                    onClick(position, container, tileEntity, window, canvas, scale) {
+                "background": {type: "image", bitmap:"_default_slot_empty", x: 0, y: 0, width: 1000, height: 999999, onTouchEvent(self_, event){
+                    let x = event.x;
+                    let y = event.y;
+
+                    let frame = self.ui.getContent().elements.frame;
+                    if(!(x >= frame.x && y >= frame.y && x <= frame.x + frame.width && y <= frame.y + frame.height))
                         self.close();
-                    },
+
                 }, z: -5},
                 "frame": {type:"frame", bitmap: this.style.frame, x: this.x - 10, y: this.y - 10, width: size.width + 20, height: size.height + 20, scale: this.style.scale, color: android.graphics.Color.argb(this.style.color[0], this.style.color[1], this.style.color[2],  this.style.color[3])},
                 "text": description

@@ -315,6 +315,45 @@ class SettingStringsElement extends SettingNumbersElement {
     }
 };
 
+class SettingButtonTextElement extends SettingTextElement {
+    public bitmap: string;
+    public color: number[];
+    public func: () => void = function(){}
+
+    constructor(text: string, bitmap: string = "default_container_frame", color: number[] = [.25, 0, 0, 0], size_text?: number){
+        super(text, size_text);
+        this.bitmap = bitmap;
+        this.color = color;
+    }
+
+    public setClick(func: () => void): SettingButtonTextElement{
+        this.func = func;
+        return this;
+    }
+
+    public getSize(): Size {
+        let size = super.getSize();
+        size.width += 20;
+        size.height += 20;
+        return size;
+    }
+
+    public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
+        let build: UI.Elements[] = super.build.apply(this, arguments);
+        let _size = this.getSize();
+        build[0].x += 10;
+        build[0].y += 10;
+        let self = this;
+        build.unshift({type: "frame", scale: .8, x: 0, y: 0, width: _size.width, height: _size.height, bitmap: this.bitmap, color: android.graphics.Color.argb(this.color[0], this.color[1], this.color[2], this.color[3]), clicker: {
+            onClick(){
+                self.func();
+            }
+        }});
+
+        return build;
+    }
+};
+
 interface IUiDialogSetting {
     newHeigth: boolean,
     element: SettingElement
@@ -324,14 +363,21 @@ class UiDialogSetting extends UiDialogBase {
     private elements: IUiDialogSetting[] = [];
     public configs: {[key: string]: any} = {};
     private func: (self: UiDialogSetting) => void = (self) => {};
+    private texture: string;
 
-    public addElement(element: SettingElement, newHeigth: boolean = true): UiDialogSetting {
+    public addElement(element: SettingElement, newHeigth: boolean = false): UiDialogSetting {
         this.elements.push({element, newHeigth});
         return this;
     }
 
     constructor(title: string){
         super(title);
+        this.texture = "icon_mod_compile";
+    }
+
+    public setTextureExit(texture: string): UiDialogSetting{
+        this.texture = texture;
+        return this;
     }
 
     public getSize(): Size {
@@ -339,11 +385,11 @@ class UiDialogSetting extends UiDialogBase {
         for(let i in this.elements){
             let _size = this.elements[i].element.getSize();
             if(this.elements[i].newHeigth){
-                size.width = Math.max(size.width, _size.width + 20);
-                size.height += _size.height + 5;
-            }else{
                 size.width += _size.width + 30;
                 size.height = Math.max(size.height, size.height + 5)
+            }else{
+                size.width = Math.max(size.width, _size.width + 20);
+                size.height += _size.height + 5;
             }
         }
         size.width += 20
@@ -362,28 +408,25 @@ class UiDialogSetting extends UiDialogBase {
 
         let content = this.ui.getContent();
         let heigth = size.height;
+        let x = 0;
         for(let i in this.elements){
             let elements = this.elements[i].element.build(this, content, size, _size, "element_"+i+"_");
             let element_size = this.elements[i].element.getSize();
-            let x = 0;
             for(let a in elements){
                 let element = elements[a];
-                if(this.elements[i].newHeigth){
-                    x = 0;
-                    element.x += this.x;
-                    element.y += this.y+heigth;
-                }else{
-                    element.x += this.x+x;
-                    element.y += this.y+heigth;
-                    x += element_size.width+5;
-                }
+                element.x += this.x+x;
+                element.y += this.y+heigth;
                 content.elements["element_"+i+"_"+a] = element;
             }
-            heigth += element_size.height+5;
-
+            if(this.elements[i].newHeigth)
+                x += element_size.width+5;
+            else{
+                x = 0;
+                heigth += element_size.height+5;
+            }
         }
         let self = this
-        content.elements["save"] = {type: "button", bitmap: "icon_mod_compile", scale: 30/15, x: this.x, y: this.y + heigth, clicker: {
+        content.elements["save"] = {type: "button", bitmap: self.texture, scale: 30/15, x: this.x, y: this.y + heigth, clicker: {
             onClick(){
                 self.func(self);
                 self.close();
@@ -398,17 +441,24 @@ class UiDialogSetting extends UiDialogBase {
         return this;
     }
 }
-alert("open")
-new UiDialogSetting("Test 1")
-    .addElement(new SettingKeyboardElement("test", "test"))
-    .addElement(new SettingKeyboardElement("test2", "test2"))
-    .addElement(new SettingTextElement("test text"))
-    .openCenter();
-new UiDialogSetting("Test 2")
-    .addElement(new SettingKeyboardElement("test", "test"))
-    .addElement(new SettingKeyboardElement("test2", "test2"), false)
-    .addElement(new SettingTextElement("test text"))
-    .openCenter();
+    let context: any = UI.getContext();
+    context.runOnUiThread({
+        run() {
+            new UiDialogSetting("Test 1")
+                .addElement(new SettingKeyboardElement("test", "test"))
+                .addElement(new SettingKeyboardElement("test2", "test2"))
+                .addElement(new SettingTextElement("test text"))
+                .openCenter();
+            new UiDialogSetting("Test 2")
+                .addElement(new SettingKeyboardElement("test", "test"), true)
+                .addElement(new SettingKeyboardElement("test2", "test2"))
+                .addElement(new SettingTextElement("test text"))
+                .addElement(new SettingButtonTextElement("Test Text").setClick(function(){
+                    alert("click");
+                }))
+                .openCenter();
+        }
+    });
 
 
 
