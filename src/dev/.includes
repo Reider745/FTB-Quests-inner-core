@@ -11,6 +11,7 @@ ui/StandartTabElement.ts
 ui/TabCloseElement.ts
 ui/UiMainBuilder.ts
 ui/Achievement.ts
+ui/GroupTabElement.ts
 
 quests_utils/GiveItems.ts
 

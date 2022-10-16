@@ -73,6 +73,11 @@ class UiDialogBase {
             return false;
         return true;
     }
+    public status_exit: boolean = true;
+    public setCanExit(status: boolean){
+        this.status_exit = status;
+        return this;
+    }
     public build(): UiDialogBase {
         let self = this;
         let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
@@ -96,7 +101,7 @@ class UiDialogBase {
                     let y = event.y;
 
                     let frame = self.ui.getContent().elements.frame;
-                    if(!(x >= frame.x && y >= frame.y && x <= frame.x + frame.width && y <= frame.y + frame.height))
+                    if(self.status_exit && !(x >= frame.x && y >= frame.y && x <= frame.x + frame.width && y <= frame.y + frame.height))
                         self.close();
 
                 }, z: -5},
@@ -110,7 +115,7 @@ class UiDialogBase {
                 onSystemUiVisibilityChange(self.ui.layout);
             },
         });
-        this.ui.setCloseOnBackPressed(true);
+        this.ui.setCloseOnBackPressed(this.status_exit);
         this.ui.setBlockingBackground(true);
         return this;
     }

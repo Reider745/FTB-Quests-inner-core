@@ -4,7 +4,7 @@ let Utils = WRAP_JAVA("com.zhekasmirnov.innercore.utils.UIUtils");
 
 class UiTabsBuilder {
     private elements: StandartTabElement[];
-    private prefix: string;
+    public prefix: string;
     public main: UiMainBuilder;
     public ui: UI.Window;
     private isLeft: boolean;
@@ -18,6 +18,11 @@ class UiTabsBuilder {
         for (const element of this.elements)
             if(element.getId() == name)
                 return element;
+        for (const element of this.elements){
+            let tab = element.getTab(name);
+            if(tab)
+                return tab;
+        }
         return null;
     }
 
@@ -43,6 +48,7 @@ class UiTabsBuilder {
     public addRender(element: StandartTabElement): UiTabsBuilder {
         element.setUiTabsBuilder(this);
         this.elements.push(element);
+        element.addedTab();
         return this;
     }
     public setUiMainBuilder(main: UiMainBuilder, ui: UI.Window): UiTabsBuilder{
@@ -60,7 +66,7 @@ class UiTabsBuilder {
         });
         return this;
     }
-    protected buildTabInformation(element: StandartTabElement, group: UI.WindowGroup, style: UiStyle){
+    public buildTabInformation(element: StandartTabElement, group: UI.WindowGroup, style: UiStyle){
         element.build(group.getWindow("main"));
     }
     protected clear(element: StandartTabElement,){
@@ -79,18 +85,21 @@ class UiTabsBuilder {
         }
     }
     private dialog: UiDialogBase = new UiDialogBase("", 0, 0);
+    public openDialogToTab(dialog: UiDialogBase, tab: StandartTabElement): UiTabsBuilder {
+        let element = this.ui.content.elements[this.prefix+"_"+tab.getId()];
+
+        let size = dialog.getSize();
+        let y = this.ui.location.windowToGlobal(element.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))
+        if(this.isLeft)
+            dialog.setPos(tab.getSize()+10, y+10).build().open();   
+        else
+            dialog.setPos((1000-this.getMaxSize())-size.width+10, y+10).build().open();
+        return this;
+    }
     protected onLongClick(element: StandartTabElement, position: Vector, container, tileEntity, window, canvas, scale): void {
-        if(element.onLongClick(position, container, tileEntity, window, canvas, scale)){
-            let elem = this.ui.content.elements[this.prefix+"_"+element.getId()];
-            if(element.getDisplayName() != ""){
-                this.dialog.setMessage(element.getDisplayName());
-                let size = this.dialog.getSize();
-                let y = this.ui.location.windowToGlobal(elem.y - this.ui.location.globalToWindow(this.ui.layout.getScrollY() / this.ui.location.getScale()))
-                if(this.isLeft)
-                    this.dialog.setPos(element.getSize(), y).build().open();   
-                else
-                    this.dialog.setPos((1000-this.getMaxSize())-size.width, y).build().open();
-            }
+        if(element.onLongClick(position, container, tileEntity, window, canvas, scale) && element.getDisplayName() != ""){
+            this.dialog.setMessage(element.getDisplayName());
+            this.openDialogToTab(this.dialog, element);
         }
     }
     public build(container: ItemContainer, left: number, right: number): UiTabsBuilder {

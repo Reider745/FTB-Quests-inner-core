@@ -1,6 +1,7 @@
 /// <reference path="./ui/UiMainBuilder.ts"/>
 /// <reference path="./ui/StandartTabElement.ts"/>
 /// <reference path="./ui/TabCloseElement.ts"/>
+/// <reference path="./ui/GroupTabElement.ts"/>
 /// <reference path="./ui/Quest.ts"/>
 /// <reference path="./quests_utils/RecipeCheck.ts"/>
 /// <reference path="./quests_utils/DestroyBlocks.ts"/>
@@ -35,6 +36,36 @@ Callback.addCallback('LevelLeft', function(){
     RecipesUtil.clear();
     DestroyBlocks.blocks = {};
 });
+
+
+let test = new UiMainBuilder("test_name")
+    .registerItem(VanillaItemID.book)
+    .addRenderLeft(new GroupTabElement("test1")
+        .addTab(
+            new StandartTabElement("test2")
+                .setDisplayName("Test display name")
+                .addQuest(new Quest({
+                    id: "test",
+                    x: 100,
+                    y: 100,
+                    item: {id: VanillaItemID.diamond, data: 0, count: 1}
+                }))
+        )
+        .addTab(
+            new StandartTabElement("test3")
+                .setDisplayName("Test display name 2")
+                .addQuest(new Quest({
+                    id: "test",
+                    x: 100,
+                    y: 500,
+                    item: {id: VanillaItemID.iron_ingot, data: 0, count: 1}
+                }))
+        )
+        .setItem({id: VanillaItemID.gold_ingot, data: 0, count: 1})
+    )
+    .addRenderRight(new TabCloseElement("close"));
+RecipeCheck.registerRecipeCheck(test, [VanillaItemID.diamond], true, "test2", "test", "АЛМАЗ!");
+RecipeCheck.registerRecipeCheck(test, [VanillaItemID.iron_ingot], true, "test3", "test", "ЖЕЛЕЗО!");
 
 ModAPI.registerAPI("FTBQuests", {
     UiMainBuilder: UiMainBuilder,

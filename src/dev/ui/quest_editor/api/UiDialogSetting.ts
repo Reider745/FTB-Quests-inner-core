@@ -373,6 +373,7 @@ class UiDialogSetting extends UiDialogBase {
     constructor(title: string){
         super(title);
         this.texture = "icon_mod_compile";
+        this.setEnableExitButton(true);
     }
 
     public setTextureExit(texture: string): UiDialogSetting{
@@ -392,13 +393,23 @@ class UiDialogSetting extends UiDialogBase {
                 size.height += _size.height + 5;
             }
         }
-        size.width += 20
-        size.height+= 20 + 30;
+        size.width += 20;
+        size.height+= 20;
+        if(this.enableExitButton)
+            size.height += 30;
         return size;
     }
     public setCloseHandler(func: (self: UiDialogSetting) => void ): UiDialogSetting {
         this.func = func;
         return this;
+    }
+    private enableExitButton: boolean;
+    public setEnableExitButton(status: boolean){
+        this.enableExitButton = status;
+        return this;
+    }
+    public canEnableExitButton(){
+        return this.enableExitButton;
     }
     public build(): UiDialogSetting {
         super.build();
@@ -425,13 +436,15 @@ class UiDialogSetting extends UiDialogBase {
                 heigth += element_size.height+5;
             }
         }
-        let self = this
-        content.elements["save"] = {type: "button", bitmap: self.texture, scale: 30/15, x: this.x, y: this.y + heigth, clicker: {
-            onClick(){
-                self.func(self);
-                self.close();
-            }
-        }};
+        if(this.enableExitButton){
+            let self = this
+            content.elements["save"] = {type: "button", bitmap: self.texture, scale: 30/15, x: this.x, y: this.y + heigth, clicker: {
+                onClick(){
+                    self.func(self);
+                    self.close();
+                }
+            }};
+        }
         content.elements["frame"].width = _size.width;
         content.elements["frame"].height = _size.height;
         content.elements["background"].clicker = {};
@@ -441,25 +454,6 @@ class UiDialogSetting extends UiDialogBase {
         return this;
     }
 }
-    let context: any = UI.getContext();
-    context.runOnUiThread({
-        run() {
-            new UiDialogSetting("Test 1")
-                .addElement(new SettingKeyboardElement("test", "test"))
-                .addElement(new SettingKeyboardElement("test2", "test2"))
-                .addElement(new SettingTextElement("test text"))
-                .openCenter();
-            new UiDialogSetting("Test 2")
-                .addElement(new SettingKeyboardElement("test", "test"), true)
-                .addElement(new SettingKeyboardElement("test2", "test2"))
-                .addElement(new SettingTextElement("test text"))
-                .addElement(new SettingButtonTextElement("Test Text").setClick(function(){
-                    alert("click");
-                }))
-                .openCenter();
-        }
-    });
-
 
 
 

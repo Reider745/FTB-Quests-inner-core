@@ -97,4 +97,10 @@ class StandartTabElement {
     public onLongClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number): boolean {
         return true;
     }
+    public addedTab(): StandartTabElement {
+        return this;
+    }
+    public getTab(name: string): StandartTabElement {
+        return null;
+    }
 };

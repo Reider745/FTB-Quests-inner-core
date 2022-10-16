@@ -79,10 +79,14 @@ class UiMainBuilder {
         return id;
     }
 
-    public getTab(isLeft: boolean, tab: string): StandartTabElement {
+    public getTabsBuilder(isLeft: boolean){
         if(isLeft)
-            return this.ui_left.getTab(tab);
-        return this.ui_right.getTab(tab);
+            return this.ui_left;
+        return this.ui_right;
+    }
+
+    public getTab(isLeft: boolean, tab: string): StandartTabElement {
+        return this.getTabsBuilder(isLeft).getTab(tab);
     }
 
     public getAllQuest(isLeft: boolean, tab: string): string[] {
@@ -168,17 +172,31 @@ class UiMainBuilder {
         this.ui_left.selectedTab(builder, element);
         this.ui_right.selectedTab(builder, element);
     }
+    public openTab(builder: UiTabsBuilder, element: StandartTabElement, id?: string){
+        this.selectedTab(builder, element);
+        if(builder.ui.content.elements[builder.prefix+"_"+id])
+            builder.ui.content.elements[builder.prefix+"_"+id].bitmap = element.getTextureSelected(this.style);
+        builder.buildTabInformation(element, this.group, this.style);
+        return this;
+    }
     public getUiLeft(): UiTabsBuilder {
         return this.ui_left;
     }
     public getUiRight(): UiTabsBuilder {
         return this.ui_right;
     }
-    public addRenderLeft(element: StandartTabElement){
-        this.ui_left.addRender(element);
+    public addRender(isLeft: boolean, element: StandartTabElement){
+        if(isLeft)
+            return this.addRenderLeft(element);
+        return this.addRenderRight(element);
     }
-    public addRenderRight(element: StandartTabElement){
+    public addRenderLeft(element: StandartTabElement): UiMainBuilder{
+        this.ui_left.addRender(element);
+        return this;
+    }
+    public addRenderRight(element: StandartTabElement): UiMainBuilder{
         this.ui_right.addRender(element);
+        return this;
     }
     public setStyle(style: UiStyle): UiMainBuilder {
         this.style = style;
