@@ -16,6 +16,8 @@ class SettingElement {
 class SettingTextElement extends SettingElement {
     protected text: string;
     public size: number;
+    public color: number = android.graphics.Color.WHITE;
+    public func: () => void = function(){}
 
     constructor(text: string, size: number = 15){
         super();
@@ -23,12 +25,28 @@ class SettingTextElement extends SettingElement {
         this.size = size;
     }
 
+    public setStyle(color: number = android.graphics.Color.WHITE, size: number = 15){
+        this.color = color;
+        this.size = size;
+        return this;
+    }
+
+    public setClick(func: () => void){
+        this.func = func;
+        return this;
+    }
+
     public getSize(): Size {
         return UiDialogBase.getSize(this.text, this.size + .5);
     }
 
     public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
-        return [{type: "text", text: this.text, x: 0, y: 0, multiline: true, font: {size: this.size, color: android.graphics.Color.WHITE}}];
+        let self = this;
+        return [{type: "text", text: this.text, x: 0, y: 0, multiline: true, font: {size: this.size, color: this.color}, clicker: {
+            onClick(){
+                self.func();
+            }
+        }}];
     }
 }
 
@@ -317,18 +335,12 @@ class SettingStringsElement extends SettingNumbersElement {
 
 class SettingButtonTextElement extends SettingTextElement {
     public bitmap: string;
-    public color: number[];
-    public func: () => void = function(){}
+    public color_frame: number[];
 
     constructor(text: string, bitmap: string = "default_container_frame", color: number[] = [.25, 0, 0, 0], size_text?: number){
         super(text, size_text);
         this.bitmap = bitmap;
-        this.color = color;
-    }
-
-    public setClick(func: () => void): SettingButtonTextElement{
-        this.func = func;
-        return this;
+        this.color_frame = color;
     }
 
     public getSize(): Size {
@@ -344,11 +356,12 @@ class SettingButtonTextElement extends SettingTextElement {
         build[0].x += 10;
         build[0].y += 10;
         let self = this;
-        build.unshift({type: "frame", scale: .5, x: 0, y: 0, width: _size.width, height: _size.height, bitmap: this.bitmap, color: android.graphics.Color.argb(this.color[0], this.color[1], this.color[2], this.color[3]), clicker: {
+        build.unshift({type: "frame", scale: .5, x: 0, y: 0, width: _size.width, height: _size.height, bitmap: this.bitmap, color: android.graphics.Color.argb(this.color_frame[0], this.color_frame[1], this.color_frame[2], this.color_frame[3]), clicker: {
             onClick(){
                 self.func();
             }
         }});
+        build[1].clicker = {};
 
         return build;
     }
@@ -383,18 +396,24 @@ class UiDialogSetting extends UiDialogBase {
 
     public getSize(): Size {
         let size = super.getSize();
+        let width = 0;
         for(let i in this.elements){
             let _size = this.elements[i].element.getSize();
             if(this.elements[i].newHeigth){
-                size.width += _size.width + 30;
                 size.height = Math.max(size.height, size.height + 5)
+                width += _size.width + 10;
+                size.width = Math.max(size.width, width + 20);
             }else{
-                size.width = Math.max(size.width, _size.width + 20);
+                if(this.elements[Number(i)-1] && this.elements[Number(i)-1].newHeigth)
+                    size.width = Math.max(size.width, width + _size.width + 20);
+                else
+                    size.width = Math.max(size.width, _size.width + 20);
+                width = 0;
                 size.height += _size.height + 5;
             }
         }
         size.width += 20;
-        size.height+= 20;
+        size.height += 20;
         if(this.enableExitButton)
             size.height += 30;
         return size;
@@ -447,7 +466,6 @@ class UiDialogSetting extends UiDialogBase {
         }
         content.elements["frame"].width = _size.width;
         content.elements["frame"].height = _size.height;
-        content.elements["background"].clicker = {};
 
         this.ui.setContent(content);
 

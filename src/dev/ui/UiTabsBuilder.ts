@@ -7,7 +7,7 @@ class UiTabsBuilder {
     public prefix: string;
     public main: UiMainBuilder;
     public ui: UI.Window;
-    private isLeft: boolean;
+    public isLeft: boolean;
 
     constructor(prefix: string, isLeft: boolean){
         this.elements = [];
@@ -18,11 +18,11 @@ class UiTabsBuilder {
         for (const element of this.elements)
             if(element.getId() == name)
                 return element;
-        for (const element of this.elements){
-            let tab = element.getTab(name);
-            if(tab)
-                return tab;
-        }
+            else{
+                let tab = element.getTab(name);
+                if(tab)
+                    return tab;
+            }
         return null;
     }
 

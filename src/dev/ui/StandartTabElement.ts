@@ -2,6 +2,7 @@ class StandartTabElement {
     protected id: string;
     protected quests: Quest[];
     public tab: UiTabsBuilder;
+    public isLeft: boolean;
 
     public path: string;
 
@@ -12,6 +13,8 @@ class StandartTabElement {
 
     public setUiTabsBuilder(tab: UiTabsBuilder): StandartTabElement{
         this.tab = tab;
+        if(tab)
+            this.isLeft = tab.isLeft;
         return this;
     }
 

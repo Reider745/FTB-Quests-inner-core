@@ -29,6 +29,11 @@ class UiMainBuilder {
     private debug: boolean = false;
     public container: ItemContainer;
 
+    static all_main: {[key: string]: UiMainBuilder} = {};
+    static getUiMainByName(name: string): Nullable<UiMainBuilder> {
+        return UiMainBuilder.all_main[name];
+    }
+
     public setDebug(debug: boolean): UiMainBuilder {
         this.debug = debug;
         return this;
@@ -56,6 +61,8 @@ class UiMainBuilder {
                 self.addRenderRight(new QuestEditor("quest_added"));
             }
         });
+
+        UiMainBuilder.all_main[client_name] = this;
     }
 
     public getClientName(): string {

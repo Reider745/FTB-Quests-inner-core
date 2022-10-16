@@ -19,31 +19,31 @@ class QuestEditor extends StandartTabElement {
         if(this.tab.main.selected_tab === null || this.tab.main.selected_tab.path === undefined)
             return false;
         let ui = new UiDialogSetting("Quest editor")
-            .addElement(new SettingTextElement("Quest name:", 10))
+            .addElement(new SettingTextElement("Quest name:", 10), true)
             .addElement(new SettingKeyboardElement("Quest name", "name"))
-            .addElement(new SettingTextElement("Description:", 10))
+            .addElement(new SettingTextElement("Description:", 10), true)
             .addElement(new SettingKeyboardElement("Quest description", "description"))
-            .addElement(new SettingTextElement("Quest icon:", 10))
+            .addElement(new SettingTextElement("Quest icon:", 10), true)
             .addElement(new SettingIconElement("icon", 45))
-            .addElement(new SettingTextElement("x:", 10))
+            .addElement(new SettingTextElement("x:", 10), true)
             .addElement(new SettingNumbersElement("x", 0, 1000, 30))
-            .addElement(new SettingTextElement("y:", 10))
+            .addElement(new SettingTextElement("y:", 10), true)
             .addElement(new SettingNumbersElement("y", 0, 1000, 30))
-            .addElement(new SettingTextElement("size:", 10))
+            .addElement(new SettingTextElement("size:", 10), true)
             .addElement(new SettingNumbersElement("size", 0, 100, 5, 60))
 
             .addElement(new SettingTextElement("Dialog:", 25))
-            .addElement(new SettingTextElement("input:", 10))
+            .addElement(new SettingTextElement("input:", 10), true)
             .addElement(new SettingItemsElement("input", 50))
-            .addElement(new SettingTextElement("output:", 10))
+            .addElement(new SettingTextElement("output:", 10), true)
             .addElement(new SettingItemsElement("output", 50))
-            .addElement(new SettingTextElement("Quest name:", 10))
+            .addElement(new SettingTextElement("Quest name:", 10), true)
             .addElement(new SettingKeyboardElement("Quest name", "dialog_name"))
-            .addElement(new SettingTextElement("Description:", 10))
+            .addElement(new SettingTextElement("Description:", 10), true)
             .addElement(new SettingKeyboardElement("Quest description", "dialog_description"))
 
             .addElement(new SettingTextElement("Give:", 25))
-            .addElement(new SettingStringsElement("type_give", ["recipe", "destroy"], "recipe"))
+            .addElement(new SettingStringsElement("type_give", ["recipe", "destroy"], "recipe"));
         let quests = this.tab.main.selected_tab.getAllQuest();
         if(quests.length > 0){
             quests.unshift("");
@@ -53,7 +53,7 @@ class QuestEditor extends StandartTabElement {
         function tab_save(object: IUiTabs, configs: any, path: string) {
             let id = self_tab.tab.main.selected_tab.tab.getIdQuest(configs.name);
             object.quests.push("quests/"+id+"_"+self_tab.tab.main.selected_tab.getId()+".json");
-            let save = {
+            let save: IUiQuest = {
                 type: "quest",
                 item: {id: configs.icon.fullId, count: 1, data: 0},
                 identifier: id,
@@ -104,36 +104,16 @@ class QuestEditor extends StandartTabElement {
                 })()
             };
 
-            let quest = new Quest({
-                id: id,
-                x: configs.x, 
-                y: configs.y,
-                size: configs.size,
-                item: {id: eval(save.item.id), count: 1, data: 0},
-                lines: save.lines
-            })
-            let dialog = new UiDialog(save.dialog.title, save.dialog.description);
-            let items = [];
-            for(let i in save.dialog.input){
-                save.dialog.input[i].id = eval(save.dialog.input[i].id);
-                items.push({item: save.dialog.input[i]});
-            }
-            dialog.setInput(items);
-            items = [];
-            for(let i in save.dialog.output){
-                save.dialog.output[i].id = eval(save.dialog.output[i].id);
-                items.push({item: save.dialog.output[i]});
-            }
-            dialog.setResult(items);
-            quest.setDialog(dialog);
-
-            self_tab.tab.main.selected_tab.addQuest(quest);
-            self_tab.tab.main.group.close();
-            self_tab.tab.main.build(self_tab.tab.main.container).open();
-
+            
             if(!FileTools.isExists(UiJsonParser.getDirectory(path)+"quests"))
                 FileTools.mkdir(UiJsonParser.getDirectory(path)+"quests");
             FileTools.WriteJSON(UiJsonParser.getDirectory(path)+"quests/"+id+"_"+self_tab.tab.main.selected_tab.getId()+".json", save, true);
+
+            UiJsonParser.buildQuest(save, UiJsonParser.getDirectory(path)+"quests/"+id+"_"+self_tab.tab.main.selected_tab.getId()+".json", id);
+            UiJsonParser.buildQuestFunctions(self_tab.tab.main, self_tab.tab.main.selected_tab, id, self_tab.tab.main.selected_tab.isLeft);
+
+            self_tab.tab.main.group.close();
+            self_tab.tab.main.build(self_tab.tab.main.container).open();
         }
         ui.setCloseHandler(function(self){
             let path =  self_tab.tab.main.selected_tab.path;

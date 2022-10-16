@@ -70,6 +70,8 @@ RecipeCheck.registerRecipeCheck(test, [VanillaItemID.iron_ingot], true, "test3",
 ModAPI.registerAPI("FTBQuests", {
     UiMainBuilder: UiMainBuilder,
     StandartTabElement: StandartTabElement,
+    GroupTabElement: GroupTabElement,
+    UiTabsBuilder: UiTabsBuilder,
     Quest: Quest,
     TabCloseElement: TabCloseElement,
     RecipeCheck: RecipeCheck,

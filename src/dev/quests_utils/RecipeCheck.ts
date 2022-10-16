@@ -23,7 +23,7 @@ class RecipeCheck {
 		RecipesUtil.add(player, item);
 	}
 
-	static registerRecipeCheck(ui: UiMainBuilder, items: number[], isLeft: boolean, tab: string, quest: string, title: string, description?: string): void {
+	static registerRecipeCheck(ui: UiMainBuilder, items: number[], isLeft: boolean, tab: string, quest: string, title?: string, description?: string): void {
 		RecipeCheck.register_checks.push({
 			ui: ui,
 			items: items,

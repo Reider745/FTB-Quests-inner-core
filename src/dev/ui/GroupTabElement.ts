@@ -7,7 +7,14 @@ class GroupTabElement extends StandartTabElement {
 
     public addTab(tab: StandartTabElement): GroupTabElement {
         tab.setUiTabsBuilder(this.tab);
+        tab.isLeft = this.isLeft;
         this.tabs.push(tab);
+        return this;
+    }
+
+    public addQuest(quest: Quest): GroupTabElement {
+        if(this.tabs.length > 0)
+            this.tabs[0].addQuest(quest);
         return this;
     }
 
@@ -28,8 +35,10 @@ class GroupTabElement extends StandartTabElement {
     }
 
     public addedTab(): GroupTabElement {
-        for(const tab of this.tabs)
+        for(const tab of this.tabs){
             tab.setUiTabsBuilder(this.tab);
+            tab.isLeft = this.isLeft;
+        }
         return this;
     }
 
