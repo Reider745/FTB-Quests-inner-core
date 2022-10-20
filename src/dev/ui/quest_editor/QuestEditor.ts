@@ -42,11 +42,14 @@ class QuestEditor extends StandartTabElement {
             .addElement(new SettingTranslationElement("dialog_description", "Quest description", langs))
 
             .addElement(new SettingTextElement("Give:", 25))
-            .addElement(new SettingStringsElement("type_give", ["recipe", "destroy"], "recipe"));
+            .addElement(new SettingStringsElement("type_give", ["recipe", "destroy", "inventory"], "recipe"));
         let quests = main.selected_tab.getAllQuest();
         if(quests.length > 0){
             quests.unshift("");
-            ui.addElement(new SettingStringsElement("line", quests));
+            let line = "";
+            if(quest)
+                line = quest.quest.lines[0]||"";
+            ui.addElement(new SettingStringsElement("line", quests, line));
         }
         function tab_save(object: IUiTabs, configs: any, path: string) {
             UiJsonParser.saveLang(main.path, configs.name);
@@ -145,7 +148,6 @@ class QuestEditor extends StandartTabElement {
                 icon: SelectedItemDialog.getItemSelectedById(quest.getItem().id),
                 x: quest.getX(),
                 y: quest.getY(),
-                line: quest.quest.lines[0]||"",
                 size: quest.getSize(),
                 type_give: quest.quest.give[0].type
             });

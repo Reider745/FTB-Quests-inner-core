@@ -11,6 +11,10 @@ interface IQuestBlockDestroy {
     }
 }
 
+interface IQuestInventory {
+    type: "inventory"
+}
+
 interface IUiQuest {
     type?: "quest";
     identifier: string,
@@ -18,7 +22,7 @@ interface IUiQuest {
     item: {id: any, data: number, count: number},
     x: number,
     y: number,
-    give?:(IQuestRecipes | IQuestBlockDestroy)[],
+    give?:(IQuestRecipes | IQuestBlockDestroy | IQuestInventory)[],
     lines: string[],
     size: number,
     dialog: {
@@ -206,7 +210,7 @@ class UiJsonParser {
 
     static buildQuestFunctions(main: UiMainBuilder, tab: StandartTabElement, key: string, isLeft: boolean, added: boolean = true){
         if(!UiJsonParser.quest_build[key]) return null;
-        let quest = UiJsonParser.quest_build[key].quest;
+        let quest: any = UiJsonParser.quest_build[key].quest;
         let object = UiJsonParser.quest[key];
         let items = [];
         for(let i in object.quest.dialog.output){
@@ -222,6 +226,8 @@ class UiJsonParser {
                     RecipeCheck.registerRecipeCheck(main, UiJsonParser.getIds(give.items), isLeft, tab.getId(), quest.getId(), object.quest.name, object.quest.description);
                 else if(give.type == "destroy")
                     DestroyBlocks.registerDestroyBlocks(main, [eval(give.block.id)+":"+give.block.data], isLeft, tab.getId(), quest.getId(), object.quest.name, object.quest.description);
+                else if(give.type == "inventory")
+                    quest.dialog.setInventoryCheck(true);
             }
         if(added)
             tab.addQuest(quest);

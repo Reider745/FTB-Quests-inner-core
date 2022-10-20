@@ -349,6 +349,7 @@ class SettingStringsElement extends SettingNumbersElement {
     }
 
     public initConfig(config: any): void {
+        if(!config) return;
         this._value = this.strings.indexOf(config);
         if(this._value < 0)
             this._value = 0;
@@ -587,35 +588,3 @@ class UiDialogSetting extends UiDialogBase {
         return this;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

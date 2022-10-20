@@ -99,7 +99,7 @@ class SelectedItemDialog extends UiDialogBase {
                 self.ui.forceRefresh();
             }
         }, x: this.x, y: y+2};
-        content.elements["search"] = {type: "image", bitmap: "ftb_search", x: this.x+49, y: y+2, width: 24, height: 24, clicker: {
+        content.elements["search"] = {type: "image", bitmap: "compass", x: this.x+49, y: y+2, width: 24, height: 24, clicker: {
             onClick(){
                 new Keyboard("")
                     .getText(function(text){

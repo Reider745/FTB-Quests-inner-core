@@ -48,9 +48,10 @@ class Quest {
         return this.description.lines === undefined ? [] : this.description.lines;
     }
 
-    private dialog: UiDialogBase = new UiDialog("", "");
+    public dialog: UiDialogBase = new UiDialog("", "");
 
     public setDialog(dialog: UiDialogBase): Quest{
+        dialog.quest = this;
         this.dialog = dialog;
         return this;
     }

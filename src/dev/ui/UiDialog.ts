@@ -16,7 +16,34 @@ class UiDialogStyle extends UiDialogBaseStyle {
 
 interface Item {
     item: ItemInstance;
+    dialog?: UiDialogBase;
 }
+
+Network.addServerPacket("ftb.accept_quest", (client, data: {items: Item[], main: string, isLeft: boolean, tab: string, quest: string, description: string, title: string}) => {
+    if(UiMainBuilder.getUiMainByName(data.main).canQuest(data.isLeft, data.tab, data.quest, client.getPlayerUid())) return;
+    let actor = new PlayerActor(client.getPlayerUid());
+    let items: {[key: string]: {slot: number, item: ItemInstance}} = {};
+    for(let slot = 0;slot < 36;slot++){
+        let item = actor.getInventorySlot(slot);
+        for(let input of data.items)
+            if(input.item.id == item.id && input.item.data == item.data && input.item.count <= item.count){
+                items[item.id] = {slot,item:input.item};
+                break;
+            }
+    }
+    let keys = Object.keys(items);
+    for(let input of data.items)
+        if(keys.indexOf(String(input.item.id)) == -1)
+            return;
+    
+    for(let key in items){
+        let item = items[key];
+        let _item = actor.getInventorySlot(item.slot);
+        actor.setInventorySlot(item.slot, _item.id, _item.count - item.item.count, _item.data, null);
+    }
+    UiMainBuilder.getUiMainByName(data.main).give(data.isLeft, data.tab, data.quest, client.getPlayerUid(), data.description, data.title);
+});
+
 class UiDialog extends UiDialogBase {
     private input: Item[];
     private result: Item[];
@@ -59,9 +86,18 @@ class UiDialog extends UiDialogBase {
                 size.width = Math.max(size.width, description.width+40);
                 size.height += description.height+20;
             }
+            if(this.inventontory_check  && this.quest){
+                size.width = Math.max(size.width, 102);
+                size.height += 62;
+            }
         } catch (error) {}
         return size;
     } 
+    private inventontory_check = false;
+    public setInventoryCheck(inventontory_check: boolean){
+        this.inventontory_check = inventontory_check
+        return this;
+    }
     protected buildSlots(items: Item[], x: number, name: string): number {
         let content = this.ui.getContent();
         let size = super.getSize();
@@ -69,7 +105,12 @@ class UiDialog extends UiDialogBase {
         let _x = this.x+x;
         for(let i = 0;i < items.length;i++){
             let item = items[i];
-            content.elements[name+i] = {type: "slot", x: _x, size: this.style.slot_size, y: y, source: item.item, visual: true, bitmap: "_default_slot_empty"};
+            content.elements[name+i] = {type: "slot", x: _x, size: this.style.slot_size, y: y, source: item.item, visual: true, bitmap: "_default_slot_empty", clicker: {
+                onClick(){
+                    if(item.dialog)
+                        item.dialog.openCenter();
+                }
+            }};
             _x += this.style.slot_size;
             if(i+1 % this.style.count_slot == this.style.count_slot){
                 y += this.style.slot_size;
@@ -99,6 +140,21 @@ class UiDialog extends UiDialogBase {
                 content.drawing.push({type: "line", width: 5, x1: this.x - 10, y1: y, x2: this.x+_size.width - 10, y2: y});
                 content.elements["description"] = {type: "text", text: this.description, x: this.x, y: y+3, font: {size: this.style.description_size, color: android.graphics.Color.rgb(this.style.description_color[0], this.style.description_color[1],  this.style.description_color[2])}, multiline: true};
             }
+            let self = this;
+            if(this.inventontory_check && this.quest)
+                content.elements["accrpt"] = {type: "button", bitmap: "accept", bitmap2: "accept_gray", x: this.x + _size.width - 62, y: this.y + _size.height - 62, scale: 2, clicker: {
+                    onClick(){
+                        Network.sendToServer("ftb.accept_quest", {
+                            items: self.input,
+                            main: self.quest.tab.tab.main.getClientName(),
+                            isLeft: self.quest.tab.tab.isLeft,
+                            tab: self.quest.tab.getId(),
+                            quest: self.quest.getId(),
+                            description: self.quest.quest.description,
+                            title: self.quest.quest.name
+                        });
+                    }
+                }};
             content.elements["frame"].width = _size.width;
             content.elements["frame"].height = _size.height;
         } catch (error) {}

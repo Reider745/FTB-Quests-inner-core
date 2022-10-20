@@ -27,6 +27,7 @@ class UiDialogBase {
     protected ui: UI.Window;
     protected font: com.zhekasmirnov.innercore.api.mod.ui.types.Font;
     public style: UiDialogBaseStyle;
+    public quest?: Quest;
 
     constructor(message: string, x: number = 0, y: number = 0){
         this.message = Translation.translate(message);
