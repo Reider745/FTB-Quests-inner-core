@@ -13,25 +13,25 @@ class TabEditor extends StandartTabElement {
     public getTextureSlot(style: UiStyle): string {
         return "nbt.byte_array_closed";
     }
-    public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: globalAndroid.graphics.Canvas, scale: number): boolean {
-        let self_tab = this;
-        new UiDialogSetting("Tab editor")
+    static openEditor(main: UiMainBuilder, _tab: StandartTabElement, isLeft: boolean, added: boolean){
+        let ui = new UiDialogSetting("Tab editor")
             .addElement(new SettingTextElement("Tab name:", 10))
-            .addElement(new SettingKeyboardElement("Tab name", "name"))
+            .addElement(new SettingTranslationElement("name", "Tab name", UiJsonParser.getLangs(main.path)))
             .addElement(new SettingTextElement("Tab icon:", 10))
             .addElement(new SettingIconElement("icon"))
             .setCloseHandler(function(self){
-                let path = self_tab.tab.main.path;
+                let path = main.path;
                 let configs = self.configs;
                 if(path){
-                    let json: any = FileTools.ReadJSON(path);
+                    let json: IUiMain = FileTools.ReadJSON(path);
                     if(json.type == "main"){
                         let directory = UiJsonParser.getDirectory(path);
-                        let text = configs.name;
-                        let id = self_tab.tab.main.getIdTab(text);
+                        let text = configs.name.en;
+                        let id = _tab === null ? main.getIdTab(text) : _tab.getId();
                         let item = configs.icon;
-                        json.tabs.push("tabs/"+id+".json");
-                        FileTools.WriteJSON(path, json, true);
+                        
+                        if(added){ json.tabs.push("tabs/"+id+".json"); FileTools.WriteJSON(path, json, true);}
+
                         if(!FileTools.isExists(directory+"tabs"))
                             FileTools.mkdir(directory+"tabs");
                         let tab: IUiTabs = {
@@ -42,15 +42,24 @@ class TabEditor extends StandartTabElement {
                             "isLeft": true,
                             "quests": []
                         };
-                        FileTools.WriteJSON(directory+"tabs/"+id+".json", tab, true);
-                        UiJsonParser.buildTabFunctions(self_tab.tab.main, UiJsonParser.buildTab(tab, directory+"tabs/"+id+".json", id), self_tab.isLeft);
 
-                        self_tab.tab.main.group.close();
-                        self_tab.tab.main.build(self_tab.tab.main.container).open();
+                        UiJsonParser.saveLang(path, configs.name);
+                        
+                        UiJsonParser.buildTabFunctions(main, UiJsonParser.buildTab(tab, directory+"tabs/"+id+".json", id), isLeft, added);
+                        FileTools.WriteJSON(directory+"tabs/"+id+".json", tab, true);
+                        main.open();
                     }
                 }
             })
-            .openCenter();
+        if(!added)
+            ui.setConfig({
+                name: UiJsonParser.getTranslations(_tab.getDisplayName()),
+                icon: SelectedItemDialog.getItemSelectedById(_tab.getItem().id)
+            })
+        ui.openCenter();
+    }
+    public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: globalAndroid.graphics.Canvas, scale: number): boolean {
+        TabEditor.openEditor(this.tab.main, null, this.isLeft, true);
         return false;
     }
 }

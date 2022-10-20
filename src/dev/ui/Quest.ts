@@ -15,6 +15,7 @@ let Vec2 = WRAP_JAVA("com.reider.ftb.Vec2");
 class Quest {
     protected description: IQuest;
     public tab: StandartTabElement;
+    public quest?: IUiQuest;
 
     public path: string;
 
@@ -59,7 +60,21 @@ class Quest {
         this.dialog.openCenter();
     }
     public onLongClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: android.graphics.Canvas, scale: number): void{
-        
+        if(this.tab.tab.main.isDebug()){
+            let self = this;
+            let ui = new UiDialogSetting("What?")
+                .addElement(new SettingButtonTextElement(Translation.translate("Delete")).setClick(function(){
+                    self.tab.deleteQuest(self.getId());
+                    ui.close();
+                    self.tab.tab.main.open();
+                }))
+                .addElement(new SettingButtonTextElement(Translation.translate("Edit")).setClick(function(){
+                    ui.close();
+                    QuestEditor.openEditor(self.tab.tab.main, self, false);
+                }))
+                .setEnableExitButton(false);
+            ui.openCenter();
+        }
     }
 
     public buildLine(window: UI.Window, x1: number, y1: number, x2: number, y2: number, size1: number, size2: number, name: string): void {

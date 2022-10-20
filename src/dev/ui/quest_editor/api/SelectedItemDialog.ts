@@ -6,6 +6,7 @@ interface ItemSelected {
 };
 
 let items: ItemSelected[] = [];
+let ItemIconSource = WRAP_JAVA("com.zhekasmirnov.innercore.api.mod.ui.icon.ItemIconSource").instance
 
 function added(object: any, tag: string): void {
     for(let key in object)
@@ -21,7 +22,7 @@ Callback.addCallback("PostLoaded", function(){
     added(VanillaBlockID, "VanillaBlockID.");
     added(VanillaItemID, "VanillaItemID.");
     added(BlockID, "BlockID.");
-    added(ItemID, "ItemID.")
+    added(ItemID, "ItemID.");
 });
 
 
@@ -30,7 +31,15 @@ class SelectedItemDialog extends UiDialogBase {
     public count_y: number = 8;
     public size: number = 40;
     public list = 0;
+    public items: ItemSelected[] = items;
     public func: (item: ItemSelected) => void;
+
+    static getItemSelectedById(id: number): ItemSelected {
+        for(let item of items)
+            if(item._id == id)
+                return item;
+        return null;
+    }
 
     constructor(title: string){
         super(title);
@@ -50,16 +59,16 @@ class SelectedItemDialog extends UiDialogBase {
         for(let y = 0; y < this.count_y;y++)
             for(let x = 0; x < this.count_x;x++){
                 let _i = i;
-                    content.elements["slot_"+x+"_"+y] = {type: "slot", x: this.x+this.size*x, y: this.y+this.size*y+height, size: this.size, source: {
-                        id: i < items.length ? items[i]._id : 0,
-                        count: 1,
-                        data: 0
-                    }, visual: true, bitmap: "_default_slot_empty", clicker: {
-                        onClick(){
-                            self.close();
-                            self.func(items[_i]);
-                        }
-                    }}
+                content.elements["slot_"+x+"_"+y] = {type: "slot", x: this.x+this.size*x, y: this.y+this.size*y+height, size: this.size, source: {
+                    id: i < this.items.length ? this.items[i]._id : 0,
+                    count: 1,
+                    data: 0
+                }, visual: true, bitmap: "_default_slot_empty", clicker: {
+                    onClick(){
+                        self.close();
+                        self.func(self.items[_i]);
+                    }
+                }}
                 i++;
             }
     }
@@ -68,9 +77,9 @@ class SelectedItemDialog extends UiDialogBase {
         super.build();
         let size = super.getSize();
         let _size = this.getSize();
-
+        if(!this.items) this.items = items;
         let content = this.ui.getContent();
-        let max = Math.ceil(items.length / (this.count_x*this.count_y));
+        let max = Math.ceil(this.items.length / (this.count_x*this.count_y));
         this.updateList(content, size.height);
         let y = this.y+this.size*this.count_y+size.height;
         let self = this;
@@ -90,6 +99,30 @@ class SelectedItemDialog extends UiDialogBase {
                 self.ui.forceRefresh();
             }
         }, x: this.x, y: y+2};
+        content.elements["search"] = {type: "image", bitmap: "ftb_search", x: this.x+49, y: y+2, width: 24, height: 24, clicker: {
+            onClick(){
+                new Keyboard("")
+                    .getText(function(text){
+                        let _items = [];
+
+                        for(const item of items)
+                            if(Item.getName(item._id, 0).toLowerCase().split(text.toLowerCase()).length > 1)
+                                _items.push(item);
+
+                        self.close();
+                        self.list = 0;
+                        self.items = _items;
+                        self.openCenter();
+                    })
+                    .open();
+            },
+            onLongClick(){
+                self.close();
+                self.list = 0;
+                self.items = items;
+                self.openCenter();
+            }
+        }};
 
         content.elements["frame"].width = _size.width;
         content.elements["frame"].height = _size.height;

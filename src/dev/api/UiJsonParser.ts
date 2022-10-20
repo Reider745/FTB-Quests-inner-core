@@ -67,6 +67,9 @@ class UiJsonParser {
 
     static tab_build: {[key: string]: {isLeft: boolean, tab: StandartTabElement, quests: string[]}} = {};
     static quest_build: {[key: string]: {quest: Quest}} = {};
+
+    static translations: {[key: string]: {[key: string]: string}} = {};
+
     static getDirectory(path: string){
         let files: string[] = path.split("/");
         files.pop();
@@ -75,9 +78,20 @@ class UiJsonParser {
             result+=file+"/";
         return result;
     }
+
+    static getTranslations(name: string): {[key: string]: string}{
+        if(this.translations[name]){
+            this.translations[name].en = name;
+            return this.translations[name];
+        }
+        return {en: name};
+    }
+
     constructor(path: string){
+        if(!FileTools.isExists(path)) return;
         let object: IUiMain | IUiTabs | IUiQuest = FileTools.ReadJSON(path);
         if(object.type == "main"){
+            if(UiJsonParser.mains[path]) return;
             UiJsonParser.mains[path] = {path, main: object};
 
             if(object.translations){
@@ -95,8 +109,10 @@ class UiJsonParser {
                         translations[text[0]][lang] = (text[1]||"").replace("\\n", "\n");
                     }
                 }
-                for(let key in translations)
+                for(let key in translations){
+                    UiJsonParser.translations[key] = translations[key];
                     Translation.addTranslation(key, translations[key]);
+                }
             }
             for(let i in object.tabs){
                 let element = object.tabs[i];
@@ -114,6 +130,7 @@ class UiJsonParser {
                 }
             }
         }else if(object.type == "tab"){
+            if(UiJsonParser.tab[path]) return;
             for(let i in object.quests){
                 let element = object.quests[i];
                 if(typeof element == "string")
@@ -122,8 +139,10 @@ class UiJsonParser {
                     UiJsonParser.quest[path+"_"+i] = {path, quest: element};
             }
             UiJsonParser.tab[path] = {path, tab: object};
-        }else if(object.type == "quest")
+        }else if(object.type == "quest"){
+            if(UiJsonParser.quest[path]) return;
             UiJsonParser.quest[path] = {path, quest: object};
+        }
     }
 
     static buildTab(element: IUiTabs, path: string, key?: string): StandartTabElement {
@@ -161,6 +180,7 @@ class UiJsonParser {
             size: element.size
 
         });
+        quest.quest = element;
         quest.path = path;
         let dialog = new UiDialog(element.dialog.title, element.dialog.description);
         let items = [];
@@ -184,7 +204,8 @@ class UiJsonParser {
         return quest;
     }
 
-    static buildQuestFunctions(main: UiMainBuilder, tab: StandartTabElement, key: string, isLeft: boolean){
+    static buildQuestFunctions(main: UiMainBuilder, tab: StandartTabElement, key: string, isLeft: boolean, added: boolean = true){
+        if(!UiJsonParser.quest_build[key]) return null;
         let quest = UiJsonParser.quest_build[key].quest;
         let object = UiJsonParser.quest[key];
         let items = [];
@@ -202,11 +223,36 @@ class UiJsonParser {
                 else if(give.type == "destroy")
                     DestroyBlocks.registerDestroyBlocks(main, [eval(give.block.id)+":"+give.block.data], isLeft, tab.getId(), quest.getId(), object.quest.name, object.quest.description);
             }
-        tab.addQuest(quest);
+        if(added)
+            tab.addQuest(quest);
+        else
+            tab.replaceQuest(quest.getId(), quest);
     }
 
-    static buildTabFunctions(main: UiMainBuilder, tab: StandartTabElement, isLeft: boolean){
-        main.addRender(isLeft, tab);
+    static buildTabFunctions(main: UiMainBuilder, tab: StandartTabElement, isLeft: boolean, added: boolean = true){
+        tab.setUiTabsBuilder(main.getTabsBuilder(isLeft));
+        if(added)
+            main.addRender(isLeft, tab);
+        else
+            main.getTabsBuilder(isLeft).replaceTab(tab.getId(), tab);
+    }
+
+    static getLangs(path: string): string[]{
+        let file: IUiMain = FileTools.ReadJSON(path);
+        let langs = [];
+        for(let path of file.translations)
+            langs.push(path.split("/").pop().split(".")[0]);
+        return langs
+    }
+
+    static saveLang(pathMain: string, translations: {[key: string]: string}){
+        this.translations[translations.en] = translations;
+        let json: IUiMain = FileTools.ReadJSON(pathMain);
+        for(let path of json.translations){
+            let text = FileTools.ReadText(this.getDirectory(pathMain) + path);
+            if(path.split("/").pop().split(".")[0] != translations[path.split("/").pop().split(".")[0]]) text+="\n"+translations.en+":="+translations[path.split("/").pop().split(".")[0]];
+            FileTools.WriteText(this.getDirectory(pathMain) + path, text);
+        }
     }
 
     static getIds(ids: string[] ): number[] {
@@ -245,6 +291,7 @@ Callback.addCallback("PostLoaded", function(){
             else
                 var id = UiJsonParser.mains[key].path+"_"+tab.identifier;
             let _tab = UiJsonParser.tab_build[id];
+            if(!_tab) continue;
             UiJsonParser.buildTabFunctions(main, _tab.tab, _tab.isLeft);
             for(let i in _tab.quests)
                 UiJsonParser.buildQuestFunctions(main, _tab.tab, _tab.quests[i], _tab.isLeft);

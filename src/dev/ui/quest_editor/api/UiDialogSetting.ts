@@ -8,6 +8,10 @@ class SettingElement {
         };
     }
 
+    public initConfig(config: any){
+        
+    }
+
     public build(dialog: UiDialogSetting, content: UI.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
         return null
     }
@@ -17,7 +21,7 @@ class SettingTextElement extends SettingElement {
     protected text: string;
     public size: number;
     public color: number = android.graphics.Color.WHITE;
-    public func: () => void = function(){}
+    public func: (dialog: UiDialogSetting) => void = function(){}
 
     constructor(text: string, size: number = 15){
         super();
@@ -31,7 +35,7 @@ class SettingTextElement extends SettingElement {
         return this;
     }
 
-    public setClick(func: () => void){
+    public setClick(func: (dialog: UiDialogSetting) => void){
         this.func = func;
         return this;
     }
@@ -44,7 +48,7 @@ class SettingTextElement extends SettingElement {
         let self = this;
         return [{type: "text", text: this.text, x: 0, y: 0, multiline: true, font: {size: this.size, color: this.color}, clicker: {
             onClick(){
-                self.func();
+                self.func(dialog);
             }
         }}];
     }
@@ -60,6 +64,11 @@ class SettingKeyboardElement extends SettingTextElement {
         size.width += 10;
         size.height += 10;
         return size;
+    }
+
+    public initConfig(config: any): void {
+        if(config)
+            this.text = config;
     }
 
     public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
@@ -101,6 +110,11 @@ class SettingIconElement extends SettingElement{
         };
     }
 
+    public initConfig(config: any): void {
+        if(config)
+            this.item = config;
+    }
+
     public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
         let self = this;
         dialog.configs[self.configName] = this.item;
@@ -115,6 +129,12 @@ class SettingIconElement extends SettingElement{
                         dialog.openCenter();
                     })
                     .openCenter();
+            },
+            onLongClick(){
+                self.item = {id: null, _id: 0, tag: null, fullId: "0"};
+                dialog.close();
+                dialog.build();
+                dialog.openCenter();
             }
         }, source: {
             id: self.item._id,
@@ -144,6 +164,12 @@ class SettingItemsElement extends SettingElement {
         size.height = Math.ceil(this.items.length / this.line_x) * this.size;
 
         return size;
+    }
+
+    public initConfig(config: any): void {
+        if(!config) return;
+        config.push(null);
+        this.items = config;
     }
 
     protected getItems(): ItemSelected[] {
@@ -264,6 +290,11 @@ class SettingNumbersElement extends SettingElement {
         }
     }
 
+    public initConfig(config: any): void {
+        if(config)
+            this._value = config;
+    }
+
     public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
         let self = this;
         dialog.configs[this.configName] = this._value;
@@ -317,6 +348,12 @@ class SettingStringsElement extends SettingNumbersElement {
         this.strings = strings;
     }
 
+    public initConfig(config: any): void {
+        this._value = this.strings.indexOf(config);
+        if(this._value < 0)
+            this._value = 0;
+    }
+
     public getSize(): Size {
         return {
             height: 24,
@@ -358,12 +395,81 @@ class SettingButtonTextElement extends SettingTextElement {
         let self = this;
         build.unshift({type: "frame", scale: .5, x: 0, y: 0, width: _size.width, height: _size.height, bitmap: this.bitmap, color: android.graphics.Color.argb(this.color_frame[0], this.color_frame[1], this.color_frame[2], this.color_frame[3]), clicker: {
             onClick(){
-                self.func();
+                self.func(dialog);
             }
         }});
         build[1].clicker = {};
 
         return build;
+    }
+};
+
+class SettingSlotElement extends SettingElement {
+    private item: ItemInstance;
+    private size: number;
+    private texture: string;
+    private iconScale: number = .8;
+    private func: (dialog: UiDialogSetting) => void = () => {}
+
+    constructor(item: ItemInstance = {id: 0, count: 0, data: 0}, size: number = 70, texture: string = "_default_slot_empty"){
+        super();
+        this.item = item;
+        this.size = size;
+        this.texture = texture;
+    }
+
+    public getSize(): Size {
+        return {
+            width: this.size,
+            height: this.size
+        }
+    }
+
+    public setClick(func: (dialog: UiDialogSetting) => void){
+        this.func = func;
+        return this;
+    }
+
+    public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
+        let self = this;
+        return [{type: "slot", bitmap: this.texture, source: this.item, clicker: {
+            onClick(){
+                self.func(dialog);
+            }
+        }, x: 0, y: 0, visual: true, size: this.size, iconScale: this.iconScale}];
+    }
+}
+
+class SettingTranslationElement extends SettingButtonTextElement {
+    private translations:  {[key: string]: string} = {};
+
+    constructor(configName: string, en: string, langs: string[]){
+        super(en);
+        langs = langs.slice(0);
+        this.configName = configName;
+        this.translations.en = en;
+        langs.unshift("en");
+        let self = this;
+        this.setClick(function(dialog){
+            let ui = new UiDialogSetting("Translation text");
+            for(const lang of langs)
+                ui.addElement(new SettingTextElement(lang+":")).addElement(new SettingKeyboardElement(lang, lang));
+            ui.setCloseHandler(function(){
+                for(let key in  ui.configs)
+                    self.translations[key] = ui.configs[key];
+                dialog.configs[configName] = self.translations;
+            }).setConfig(self.translations).openCenter();
+        });
+    }
+
+    public initConfig(config: any): void {
+        this.translations = config;
+    }
+
+    public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
+        let result = super.build.apply(this, arguments);
+        dialog.configs[this.configName] = this.translations;
+        return result;
     }
 };
 
@@ -387,6 +493,14 @@ class UiDialogSetting extends UiDialogBase {
         super(title);
         this.texture = "icon_mod_compile";
         this.setEnableExitButton(true);
+    }
+
+    public setConfig(configs: {[key: string]: any}): UiDialogSetting {
+        alert(JSON.stringify(configs))
+        this.configs = configs;
+        for(let el of this.elements)
+            el.element.initConfig(this.configs[el.element.configName]);
+        return this;
     }
 
     public setTextureExit(texture: string): UiDialogSetting{
@@ -440,8 +554,9 @@ class UiDialogSetting extends UiDialogBase {
         let heigth = size.height;
         let x = 0;
         for(let i in this.elements){
-            let elements = this.elements[i].element.build(this, content, size, _size, "element_"+i+"_");
-            let element_size = this.elements[i].element.getSize();
+            let el = this.elements[i].element;
+            let elements = el.build(this, content, size, _size, "element_"+i+"_");
+            let element_size = el.getSize();
             for(let a in elements){
                 let element = elements[a];
                 element.x += this.x+x;
@@ -504,10 +619,3 @@ class UiDialogSetting extends UiDialogBase {
 
 
 
-
-
-
-
-
-
-    

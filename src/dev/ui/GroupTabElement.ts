@@ -46,12 +46,13 @@ class GroupTabElement extends StandartTabElement {
         let ui = new UiDialogSetting("Tabs")
             .setEnableExitButton(false);
         let self = this;
-        for(const tab of this.tabs)
+        for(const tab of this.tabs){
+            ui.addElement(new SettingSlotElement(tab.getItem(), 35), true)
             ui.addElement(new SettingButtonTextElement(tab.getDisplayName()).setClick(function(){
                 self.tab.main.openTab(self.tab, tab, self.getId());
                 ui.close();
             }));
-        
+        }
         this.tab.openDialogToTab(ui, this);
         return false;
     }

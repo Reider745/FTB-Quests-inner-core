@@ -37,36 +37,6 @@ Callback.addCallback('LevelLeft', function(){
     DestroyBlocks.blocks = {};
 });
 
-
-let test = new UiMainBuilder("test_name")
-    .registerItem(VanillaItemID.book)
-    .addRenderLeft(new GroupTabElement("test1")
-        .addTab(
-            new StandartTabElement("test2")
-                .setDisplayName("Test display name")
-                .addQuest(new Quest({
-                    id: "test",
-                    x: 100,
-                    y: 100,
-                    item: {id: VanillaItemID.diamond, data: 0, count: 1}
-                }))
-        )
-        .addTab(
-            new StandartTabElement("test3")
-                .setDisplayName("Test display name 2")
-                .addQuest(new Quest({
-                    id: "test",
-                    x: 100,
-                    y: 500,
-                    item: {id: VanillaItemID.iron_ingot, data: 0, count: 1}
-                }))
-        )
-        .setItem({id: VanillaItemID.gold_ingot, data: 0, count: 1})
-    )
-    .addRenderRight(new TabCloseElement("close"));
-RecipeCheck.registerRecipeCheck(test, [VanillaItemID.diamond], true, "test2", "test", "АЛМАЗ!");
-RecipeCheck.registerRecipeCheck(test, [VanillaItemID.iron_ingot], true, "test3", "test", "ЖЕЛЕЗО!");
-
 ModAPI.registerAPI("FTBQuests", {
     UiMainBuilder: UiMainBuilder,
     StandartTabElement: StandartTabElement,
@@ -98,7 +68,9 @@ ModAPI.registerAPI("FTBQuests", {
         SettingNumbersElement: SettingNumbersElement,
         SettingStringsElement: SettingStringsElement,
         SettingTextElement: SettingTextElement,
-        SettingButtonTextElement: SettingButtonTextElement
+        SettingButtonTextElement: SettingButtonTextElement,
+        SettingSlotElement: SettingSlotElement,
+        SettingTranslationElement: SettingTranslationElement
     },
     requireGlobal(cmd){
         return eval(cmd);

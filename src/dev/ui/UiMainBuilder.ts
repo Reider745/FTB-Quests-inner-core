@@ -264,6 +264,17 @@ class UiMainBuilder {
         return this.group;
     }
 
+    public isOpened(): boolean {
+        return this.group.isOpened();
+    }
+
+    public open(): UiMainBuilder {
+        if(this.isOpened())
+            this.group.close();
+        this.build(this.container).open();
+        return this;
+    }
+
     public getUi(): UI.WindowGroup{
         return this.group;
     }

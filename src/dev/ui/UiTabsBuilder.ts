@@ -1,6 +1,17 @@
 /// <reference path="./UiDialogBase.ts"/>
-
 let Utils = WRAP_JAVA("com.zhekasmirnov.innercore.utils.UIUtils");
+
+Translation.addTranslation("What?", {
+    ru: "Что?"
+});
+
+Translation.addTranslation("Delete", {
+    ru: "Удалить"
+});
+
+Translation.addTranslation("Edit", {
+    ru: "Редактировать"
+})
 
 class UiTabsBuilder {
     private elements: StandartTabElement[];
@@ -46,6 +57,7 @@ class UiTabsBuilder {
     }
 
     public addRender(element: StandartTabElement): UiTabsBuilder {
+        if(this.getTab(element.getId()) !== null) return this;
         element.setUiTabsBuilder(this);
         this.elements.push(element);
         element.addedTab();
@@ -96,7 +108,57 @@ class UiTabsBuilder {
             dialog.setPos((1000-this.getMaxSize())-size.width+10, y+10).build().open();
         return this;
     }
+    public replaceTab(name: string, tab: StandartTabElement){
+        for(const i in this.elements)
+            if(this.elements[i].getId() == name){
+                this.deleteFileTab(this.elements[i]);
+                tab.copyQuests(this.elements[i]);
+                this.elements[i] = tab;
+                break;
+            }
+    
+    }
+    public deleteFileTab(tab: StandartTabElement){
+        let file: IUiMain | IUiTabs = FileTools.ReadJSON(tab.path);
+        if(file.type == "main"){
+            for(const i in file.tabs){
+                let path: any = file.tabs[i];
+                let _tab: IUiTabs = FileTools.ReadJSON(path);
+                if(_tab.identifier == tab.getId()){
+                    file.tabs.splice(Number(i), 1);
+                    break;
+                }
+            }
+            FileTools.WriteJSON(tab.path, file, true);
+        }else
+            new java.io.File(tab.path).delete();
+    }
+    public deleteTab(name: string){
+        for(const i in this.elements)
+            if(this.elements[i].getId() == name){
+                this.deleteFileTab(this.elements.splice(Number(i), 1)[0]);
+                break;
+            }
+        return this;
+    }
+
     protected onLongClick(element: StandartTabElement, position: Vector, container, tileEntity, window, canvas, scale): void {
+        if(this.main.isDebug()){
+            let self = this;
+            let ui = new UiDialogSetting("What?")
+                .addElement(new SettingButtonTextElement(Translation.translate("Delete")).setClick(function(){
+                    self.deleteTab(element.getId());
+                    ui.close();
+                    self.main.open();
+                }))
+                .addElement(new SettingButtonTextElement(Translation.translate("Edit")).setClick(function(){
+                    ui.close();
+                    TabEditor.openEditor(self.main, element, self.isLeft, false);
+                }))
+                .setEnableExitButton(false);
+            ui.openCenter();
+            return;
+        }
         if(element.onLongClick(position, container, tileEntity, window, canvas, scale) && element.getDisplayName() != ""){
             this.dialog.setMessage(element.getDisplayName());
             this.openDialogToTab(this.dialog, element);

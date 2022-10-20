@@ -26,6 +26,8 @@ class StandartTabElement {
     }
 
     public addQuest(quest: Quest): StandartTabElement {
+        if(this.getQuest(quest.getId()) !== null) return this;
+        quest.tab = this;
         this.quests.push(quest);
         return this;
     }
@@ -35,6 +37,13 @@ class StandartTabElement {
             if(quest.getId() == name)
                 return quest;
         return null;
+    }
+
+    public copyQuests(tab: StandartTabElement){
+        let names = tab.getAllQuest();
+        for(const name of names)
+            this.addQuest(tab.getQuest(name));
+        return this;
     }
 
     public build(window: UI.Window): void {
@@ -105,5 +114,44 @@ class StandartTabElement {
     }
     public getTab(name: string): StandartTabElement {
         return null;
+    }
+    private deleteQuestToTab(tab: IUiTabs, quest: Quest){
+        for(let i in tab.quests){
+            let quest_ = tab.quests[i];
+            if(typeof quest_ == "object" && quest_.identifier == quest.getId()){
+                tab.quests.splice(Number(i), 1);
+                break;
+            }
+        }
+    }
+    public deleteQuest(name: string){
+        for(let i in this.quests){
+            let quest = this.quests[i];
+            if(quest.getId() == name){
+                alert("DELETE")
+                this.quests.splice(Number(i), 1);
+                let file: IUiMain | IUiTabs | IUiQuest = FileTools.ReadJSON(quest.path);
+                if(file.type == "main"){
+                    for(let tab of file.tabs)
+                        if(typeof tab == "object" && tab.identifier == this.getId())
+                            this.deleteQuestToTab(tab, quest);
+                    FileTools.WriteJSON(quest.path, file, true);
+                }else if(file.type == "tab"){
+                    this.deleteQuestToTab(file, quest);
+                    FileTools.WriteJSON(quest.path, file, true);
+                }else
+                    new java.io.File(quest.path).delete();
+                return this;
+            }
+        }
+        return this;
+    }
+    public replaceQuest(name: string, quest: Quest){
+        for(let i in this.quests)
+            if(this.quests[i].getId() == name){
+                this.quests[i] = quest;
+                return this;
+            }
+        return this;
     }
 };
