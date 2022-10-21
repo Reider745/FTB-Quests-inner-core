@@ -256,7 +256,8 @@ class UiJsonParser {
         let json: IUiMain = FileTools.ReadJSON(pathMain);
         for(let path of json.translations){
             let text = FileTools.ReadText(this.getDirectory(pathMain) + path);
-            if(path.split("/").pop().split(".")[0] != translations[path.split("/").pop().split(".")[0]]) text+="\n"+translations.en+":="+translations[path.split("/").pop().split(".")[0]];
+            let translation = translations[path.split("/").pop().split(".")[0]];
+            if(translation && path.split("/").pop().split(".")[0] != translation) text+="\n"+translations.en+":="+translation;
             FileTools.WriteText(this.getDirectory(pathMain) + path, text);
         }
     }

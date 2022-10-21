@@ -86,7 +86,7 @@ class UiDialog extends UiDialogBase {
                 size.width = Math.max(size.width, description.width+40);
                 size.height += description.height+20;
             }
-            if(this.inventontory_check  && this.quest){
+            if(this.inventontory_check  && this.quest && !this.quest.tab.tab.main.canQuest(this.quest.tab.tab.isLeft, this.quest.tab.getId(), this.quest.getId())){
                 size.width = Math.max(size.width, 102);
                 size.height += 62;
             }
@@ -141,7 +141,7 @@ class UiDialog extends UiDialogBase {
                 content.elements["description"] = {type: "text", text: this.description, x: this.x, y: y+3, font: {size: this.style.description_size, color: android.graphics.Color.rgb(this.style.description_color[0], this.style.description_color[1],  this.style.description_color[2])}, multiline: true};
             }
             let self = this;
-            if(this.inventontory_check && this.quest)
+            if(this.inventontory_check && this.quest && !this.quest.tab.tab.main.canQuest(this.quest.tab.tab.isLeft, this.quest.tab.getId(), this.quest.getId()))
                 content.elements["accrpt"] = {type: "button", bitmap: "accept", bitmap2: "accept_gray", x: this.x + _size.width - 62, y: this.y + _size.height - 62, scale: 2, clicker: {
                     onClick(){
                         Network.sendToServer("ftb.accept_quest", {

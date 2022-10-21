@@ -448,6 +448,8 @@ class SettingTranslationElement extends SettingButtonTextElement {
         super(en);
         langs = langs.slice(0);
         this.configName = configName;
+        for(let i in langs)
+            this.translations[langs[i]] = langs[i];
         this.translations.en = en;
         langs.unshift("en");
         let self = this;
@@ -456,7 +458,7 @@ class SettingTranslationElement extends SettingButtonTextElement {
             for(const lang of langs)
                 ui.addElement(new SettingTextElement(lang+":")).addElement(new SettingKeyboardElement(lang, lang));
             ui.setCloseHandler(function(){
-                for(let key in  ui.configs)
+                for(let key in ui.configs)
                     self.translations[key] = ui.configs[key];
                 dialog.configs[configName] = self.translations;
             }).setConfig(self.translations).openCenter();
@@ -497,7 +499,6 @@ class UiDialogSetting extends UiDialogBase {
     }
 
     public setConfig(configs: {[key: string]: any}): UiDialogSetting {
-        alert(JSON.stringify(configs))
         this.configs = configs;
         for(let el of this.elements)
             el.element.initConfig(this.configs[el.element.configName]);

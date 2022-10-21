@@ -113,7 +113,7 @@ class QuestEditor extends StandartTabElement {
             if(!FileTools.isExists(UiJsonParser.getDirectory(path)+"quests"))
                 FileTools.mkdir(UiJsonParser.getDirectory(path)+"quests");
 
-            UiJsonParser.buildQuest(save, UiJsonParser.getDirectory(path)+"quests/"+id+"_"+main.selected_tab.getId()+".json", id);
+            UiJsonParser.buildQuest(JSON.parse(JSON.stringify(save)), UiJsonParser.getDirectory(path)+"quests/"+id+"_"+main.selected_tab.getId()+".json", id);
             UiJsonParser.buildQuestFunctions(main, main.selected_tab, id, main.selected_tab.isLeft, added);
 
             

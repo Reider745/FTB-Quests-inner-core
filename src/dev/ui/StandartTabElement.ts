@@ -128,7 +128,6 @@ class StandartTabElement {
         for(let i in this.quests){
             let quest = this.quests[i];
             if(quest.getId() == name){
-                alert("DELETE")
                 this.quests.splice(Number(i), 1);
                 let file: IUiMain | IUiTabs | IUiQuest = FileTools.ReadJSON(quest.path);
                 if(file.type == "main"){
