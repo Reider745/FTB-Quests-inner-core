@@ -106,7 +106,7 @@ class SelectedItemDialog extends UiDialogBase {
                         let _items = [];
 
                         for(const item of items)
-                            if(Item.getName(item._id, 0).toLowerCase().split(text.toLowerCase()).length > 1)
+                            if(Translation.translate(Item.getName(item._id, 0)).toLowerCase().split(text.toLowerCase()).length > 1)
                                 _items.push(item);
 
                         self.close();
