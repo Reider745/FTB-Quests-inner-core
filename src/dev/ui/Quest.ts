@@ -94,8 +94,9 @@ class Quest {
         let content = window.getContent();
         for(let i in this.description.lines){
             let name: string = this.description.lines[i];
-            if(content.elements[name])
-                this.buildLine(window, content.elements[name].x, content.elements[name].y, this.getX(), this.getY(), content.elements[name].size, this.getSize(), name);
+            let quest = this.tab.getQuest(name);
+            if(quest)
+                this.buildLine(window, quest.getX(), quest.getY(), this.getX(), this.getY(), quest.getSize(), this.getSize(), name);
         }
         let slot: UI.UISlotElement = {type: "slot", bitmap: this.tab.tab.main.canQuest(this.tab.tab.canLeft(), this.tab.getId(), this.getId()) ? this.getTexturePost(this.tab.tab.main.style) : this.getTexture(this.tab.tab.main.style), source: this.getItem(), x: this.getX(), y: this.getY(), size: this.getSize(), visual: true, clicker: {
             onClick(position, container: any, tileEntity, window: any, canvas, scale) {

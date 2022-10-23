@@ -7,7 +7,7 @@ class UiDialogBaseStyle {
     public text: [number, number, number];
     public background: [number, number, number, number];
 
-    constructor(frame: string = "default_container_frame", size: number = 20, scale: number = .5, color: [number, number, number, number] = [.25, 0, 0, 0], text: [number, number, number] = [1, 1, 1], background: [number, number, number, number] = [.25, 0, 0, 0]){
+    constructor(frame: string = "default_container_frame", size: number = 20, scale: number = .5, color: [number, number, number, number] = [.1, 0, 0, 0], text: [number, number, number] = [1, 1, 1], background: [number, number, number, number] = [.25, 0, 0, 0]){
         this.frame = frame;
         this.size = size;
         this.scale = scale;

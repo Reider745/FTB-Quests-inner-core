@@ -50,12 +50,25 @@ class UiDialog extends UiDialogBase {
     private description: string;
     public style: UiDialogStyle;
 
-    constructor(title: string, description: string = "", x: number = 0, y: number = 0){
+    constructor(title: string, description: string = "", x: number = 0, y: number = 0, maxWidth: number = 600){
         super(title, x, y);
         this.input = [];
         this.result = [];
         this.description = Translation.translate(description);
         this.style = new UiDialogStyle();
+
+        let list = this.description.split(" ");
+        let width = 0;
+        let result = "";
+        for(let i in list){
+            const text = list[i];
+            let size = UiDialogBase.getSize(text, this.style.description_size);
+            if(width + size.width > maxWidth)
+                width = 0, result += "\n";
+            if(width != 0) result += " ";
+            result += text, width += size.width;
+        }
+        this.description = result;
     }
 
     public setInput(inputs: Item[]): UiDialog {
@@ -72,15 +85,13 @@ class UiDialog extends UiDialogBase {
         let size = super.getSize();
         try {
             size.height+=30;
-            this.style.count_slot = Math.min(Math.max(this.input.length, this.result.length), this.style.count_slot);
+            let count_slot = Math.min(Math.max(this.input.length, this.result.length), this.style.count_slot);
             let count_line = Math.max(Math.ceil(this.input.length / this.style.count_slot), Math.ceil(this.result.length / this.style.count_slot));
-            if(this.input.length % this.style.count_slot != 0 || this.result.length % this.style.count_slot != 0)
-                count_line++;
+
             size.height+=(count_line*this.style.slot_size)||0;
         
             let slot = this.style.slot_size;
-            if(count_line >= 1 && size.width < slot*(this.style.count_slot*2)+10)
-                size.width=slot*(this.style.count_slot*2)+10;
+            size.width = Math.max(size.width, slot*(count_slot*2)+60);
             let description = UiDialogBase.getSize(this.description, this.style.description_size);
             if(this.description != ""){
                 size.width = Math.max(size.width, description.width+40);
@@ -103,6 +114,7 @@ class UiDialog extends UiDialogBase {
         let size = super.getSize();
         let y = this.y+size.height+20;
         let _x = this.x+x;
+        let slots = 1;
         for(let i = 0;i < items.length;i++){
             let item = items[i];
             content.elements[name+i] = {type: "slot", x: _x, size: this.style.slot_size, y: y, source: item.item, visual: true, bitmap: "_default_slot_empty", clicker: {
@@ -112,12 +124,13 @@ class UiDialog extends UiDialogBase {
                 }
             }};
             _x += this.style.slot_size;
-            if(i+1 % this.style.count_slot == this.style.count_slot){
+            if(slots == this.style.count_slot || i == items.length - 1){
+                slots = 0;
                 y += this.style.slot_size;
                 _x =  this.x+x;
             }
+            slots++;
         }
-        y+=this.style.slot_size;
         return y;
     }
     public build(): UiDialog {
@@ -142,7 +155,7 @@ class UiDialog extends UiDialogBase {
             }
             let self = this;
             if(this.inventontory_check && this.quest && !this.quest.tab.tab.main.canQuest(this.quest.tab.tab.isLeft, this.quest.tab.getId(), this.quest.getId()))
-                content.elements["accrpt"] = {type: "button", bitmap: "accept", bitmap2: "accept_gray", x: this.x + _size.width - 62, y: this.y + _size.height - 62, scale: 2, clicker: {
+                content.elements["accept"] = {type: "button", bitmap: "accept", bitmap2: "accept_gray", x: this.x + _size.width - 62, y: this.y + _size.height - 62, scale: 2, clicker: {
                     onClick(){
                         Network.sendToServer("ftb.accept_quest", {
                             items: self.input,

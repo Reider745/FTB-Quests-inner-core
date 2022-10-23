@@ -21,7 +21,7 @@
 			"nativejs"
 		],
 		"excludeFromRelease": [],
-		"pushTo": "storage/emulated/0/games/horizon/packs/innercore-test-b113-performance-beta-v2/innercore/mods/FTBQuests",
+		"pushTo": "storage/emulated/0/games/horizon/packs/innercore-test-b113-performance-beta-v2/modpacks/skyblock/mods/FTBQuests",
 		"ndkPath": null
 	},
 	"resources": [

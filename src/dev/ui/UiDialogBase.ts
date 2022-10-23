@@ -20,6 +20,12 @@ Translation.addTranslation("Awards", {
     ru: "Награды"
 });
 
+let McTypeface = (() => {
+    let paint = new android.graphics.Paint();
+    paint.setTypeface(WRAP_JAVA("com.zhekasmirnov.innercore.utils.FileTools").getMcTypeface());
+    return paint;
+})()
+
 class UiDialogBase {
     protected message: string;
     public x: number;
@@ -41,6 +47,10 @@ class UiDialogBase {
         this.style = style;
         return this;
     }
+    static getWidthText(message: string, size: number): number {
+        McTypeface.setTextSize(size);
+        return Number(McTypeface.measureText(message));
+    }
     static getSize(message: string, size: number): Size {
         let font = new Font({size: size});
         let lines = message.split("\n");
@@ -49,8 +59,8 @@ class UiDialogBase {
         for (const i in lines) {
             const text = lines[i];
             height += font.getTextHeight(text, 0, 0+height, 1) * 1.1;
-            if(width < font.getTextWidth(text, 1))
-                width = font.getTextWidth(text, 1);
+            if(width < UiDialogBase.getWidthText(text, size))
+                width = UiDialogBase.getWidthText(text, size);
         }
         return new Size(width, height);
     }

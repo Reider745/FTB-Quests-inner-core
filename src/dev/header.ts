@@ -7,15 +7,24 @@ let uiOptions = android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
 | android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
 | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+function runUi(func: () => void){
+    let context: any = UI.getContext();
+    context.runOnUiThread({
+        run(){
+            func();
+        }
+    });
+}
 let open = false
 function onSystemUiVisibilityChange(layout: any, is: boolean = true): void{
-    layout.setOnSystemUiVisibilityChangeListener({
+    runUi(() => layout.setOnSystemUiVisibilityChangeListener({
         onSystemUiVisibilityChange: function (visibility: number): void {
             if ((visibility & android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION) == 0)
                 layout.setSystemUiVisibility(uiOptions);
             
         }
-    });
+    }));
 }
 function onSystemUiVisibility(win: UI.Window): void{
     win.setEventListener({

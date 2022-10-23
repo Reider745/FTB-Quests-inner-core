@@ -105,7 +105,7 @@ class UiTabsBuilder {
         if(this.isLeft)
             dialog.setPos(tab.getSize()+10, y+10).build().open();   
         else
-            dialog.setPos((1000-this.getMaxSize())-size.width+10, y+10).build().open();
+            dialog.setPos((1000-this.getMaxSize())-size.width-10, y+10).build().open();
         return this;
     }
     public replaceTab(name: string, tab: StandartTabElement){
