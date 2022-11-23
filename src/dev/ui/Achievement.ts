@@ -207,6 +207,23 @@ class AchievementAPI {
 		return this;
 	}
 
+	public animationStop(): AchievementAPI {
+		let self = this;
+		let animation: any = createAnimation(self.time, function(value: number, animation: globalAndroid.animation.ValueAnimator){
+			self.update(self.end, self.start, value);
+		});
+		animation.addListener({
+			onAnimationEnd(){
+				self.window.close();
+				self.isOpen = false;
+				self.heigth = 0;
+				self.width = 0;
+				self.handler_end();
+			}
+		});
+		return this;
+	}
+
 	public giveClient(): AchievementAPI {
 		if(this.isOpen) return this;
 		this.isOpen = true;
@@ -222,18 +239,7 @@ class AchievementAPI {
 		animation.addListener({
 			onAnimationEnd(){
 				setTimeout(function(){
-					animation = createAnimation(self.time, function(value: number, animation: globalAndroid.animation.ValueAnimator){
-						self.update(self.end, self.start, value);
-					});
-					animation.addListener({
-						onAnimationEnd(){
-							self.window.close();
-							self.isOpen = false;
-							self.heigth = 0;
-							self.width = 0;
-							self.handler_end();
-						}
-					});
+					self.animationStop();
 				}, self.pause);
 			}
 		});
@@ -285,3 +291,9 @@ class AchievementAPI {
 			});
 	}
 };
+
+Callback.addCallback("LevelLeft", function(){
+	AchievementAPI.cache = [];
+	for(const i in AchievementAPI.instances)
+		AchievementAPI.instances[i].animationStop();
+})

@@ -110,10 +110,9 @@ class UiMainBuilder {
     public isGive(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
         let check = this.getQuest(isLeft, tab, quest);
         let lines = check.getLines();
-
+        if(this.canQuest(isLeft, tab, quest, player)) return false;
         for(const element of lines)
             if(!this.canQuest(isLeft, tab, element, player) || !this.isGive(isLeft, tab, element, player)) return false;
-
         return true;
     }
 
@@ -121,11 +120,14 @@ class UiMainBuilder {
         let result = true;
         if(!UiMainBuilder.quests[this.client_name])
             UiMainBuilder.quests[this.client_name] = {};
-        if(is && this.isGive(isLeft, tab, quest, player))
-            UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
-        else if(!is)
-            UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
-        else 
+        if(!UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player]){
+            if(is && this.isGive(isLeft, tab, quest, player))
+                UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
+            else if(!is)
+                UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
+            else 
+                result = false;
+        }else
             result = false;
         Callback.invokeCallback("QuestGive", this, isLeft, tab, quest, player, value, is, result);
         Network.sendToAllClients("QuestGive", {

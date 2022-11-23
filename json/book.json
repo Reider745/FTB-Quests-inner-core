@@ -1,7 +1,7 @@
 {
     "type": "main",
     "identifier": "test_ui",
-    "save": false,
+    "save": true,
     "debug": true,
     "item": {
         "createItem": {
@@ -17,83 +17,5 @@
     "translations": [
         "ru.lang"
     ],
-    "tabs": [
-        {
-            "name": "Test name",
-            "identifier": "test_tab",
-            "item": {"id": "1", "count": 1, "data": 0},
-            "isLeft": true,
-            "quests": [
-                {
-                    "identifier": "test_quest",
-                    "name": "test",
-                    "item": {"id": "1", "count": 1, "data": 0},
-                    "x": 50,
-                    "y": 50,
-                    "size": 100,
-                    "dialog": {
-                        "input": [{"id": "1", "count": 1, "data": 0}],
-                        "output": [{"id": "5", "count": 1, "data": 0}],
-                        "give_item": true,
-                        "description": "Test description",
-                        "title": "Name"
-                    },
-                    "description": "Test description",
-                    "give":[
-                        {
-                            "type": "recipe",
-                            "items": ["264"]
-                        }
-                    ],
-                    "lines": []
-                },
-                {
-                    "identifier": "test_quest2",
-                    "name": "Test name",
-                    "item": {"id": "1", "count": 1, "data": 0},
-                    "x": 200,
-                    "y": 100,
-                    "size": 100,
-                    "dialog": {
-                        "input": [{"id": "1", "count": 1, "data": 0}],
-                        "output": [{"id": "5", "count": 1, "data": 0}],
-                        "give_item": true,
-                        "description": "Test description",
-                        "title": "Name"
-                    },
-                    "description": "Test description",
-                    "give":[
-                        {
-                            "type": "recipe",
-                            "items": ["263"]
-                        }
-                    ],
-                    "lines": ["test_quest"]
-                },
-                {
-                    "identifier": "test_quest3",
-                    "name": "test",
-                    "item": {"id": "1", "count": 1, "data": 0},
-                    "x": 10,
-                    "y": 400,
-                    "size": 100,
-                    "dialog": {
-                        "input": [{"id": "1", "count": 1, "data": 0}],
-                        "output": [{"id": "5", "count": 1, "data": 0}],
-                        "give_item": true,
-                        "description": "Test description",
-                        "title": "Name"
-                    },
-                    "description": "Test description",
-                    "give":[
-                        {
-                            "type": "recipe",
-                            "items": ["5"]
-                        }
-                    ],
-                    "lines": ["test_quest2"]
-                }
-            ]
-        }
-    ]
+    "tabs": []
 }
