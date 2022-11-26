@@ -110,7 +110,7 @@ class UiMainBuilder {
     public isGive(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
         let check = this.getQuest(isLeft, tab, quest);
         let lines = check.getLines();
-        if(this.canQuest(isLeft, tab, quest, player)) return false;
+        if(this.canQuest(isLeft, tab, quest, player)) return true;
         for(const element of lines)
             if(!this.canQuest(isLeft, tab, element, player) || !this.isGive(isLeft, tab, element, player)) return false;
         return true;
