@@ -1,0 +1,39 @@
+{
+	"compilerOptions": {
+		"target": "ES5",
+		"lib": [
+			"ESNext"
+		],
+		"outFile": "C:\\vs\\FTB-Quests-inner-core\\toolchain\\build\\project\\sources\\main.js",
+		"experimentalDecorators": true,
+		"downlevelIteration": true,
+		"allowJs": true
+	},
+	"exclude": [
+		"**/node_modules/*",
+		"dom",
+		"webpack"
+	],
+	"include": [
+		"header.ts",
+		"api/TextureBuilder.ts",
+		"ui/UiDialogBase.ts",
+		"ui/UiDialog.ts",
+		"ui/Quest.ts",
+		"ui/UiStyle.ts",
+		"ui/UiTabsBuilder.ts",
+		"ui/StandartTabElement.ts",
+		"ui/TabCloseElement.ts",
+		"ui/UiMainBuilder.ts",
+		"ui/Achievement.ts",
+		"ui/GroupTabElement.ts",
+		"quests_utils/GiveItems.ts",
+		"api/UiJsonParser.ts",
+		"shared.ts"
+	],
+	"files": [
+		"C:\\vs\\FTB-Quests-inner-core\\toolchain\\declarations\\android-declarations.d.ts",
+		"C:\\vs\\FTB-Quests-inner-core\\toolchain\\declarations\\android.d.ts",
+		"C:\\vs\\FTB-Quests-inner-core\\toolchain\\declarations\\core-engine.d.ts"
+	]
+}

@@ -20,7 +20,7 @@ function createAnimation(_duration: number, _updateFunc: (value: number, animati
 	return animation;
 }
 function setTimeout(func: () => void, tick: number){
-	Updatable.addUpdatable({
+	Updatable.addLocalUpdatable({
 		tick: 0,
 		update() {
 			this.tick++;
@@ -207,20 +207,27 @@ class AchievementAPI {
 		return this;
 	}
 
-	public animationStop(): AchievementAPI {
-		let self = this;
-		let animation: any = createAnimation(self.time, function(value: number, animation: globalAndroid.animation.ValueAnimator){
-			self.update(self.end, self.start, value);
-		});
-		animation.addListener({
-			onAnimationEnd(){
-				self.window.close();
-				self.isOpen = false;
-				self.heigth = 0;
-				self.width = 0;
-				self.handler_end();
-			}
-		});
+	public animationStop(v: boolean = false): AchievementAPI {
+		if(!v){
+			let self = this;
+			let animation: any = createAnimation(self.time, function(value: number, animation: globalAndroid.animation.ValueAnimator){
+				self.update(self.end, self.start, value);
+			});
+			animation.addListener({
+				onAnimationEnd(){
+					self.window.close();
+					self.isOpen = false;
+					self.heigth = 0;
+					self.width = 0;
+					self.handler_end();
+				}
+			});
+		}else{
+			this.window.close();
+			this.isOpen = false;
+			this.heigth = 0;
+			this.width = 0;
+		}
 		return this;
 	}
 
@@ -295,5 +302,5 @@ class AchievementAPI {
 Callback.addCallback("LevelLeft", function(){
 	AchievementAPI.cache = [];
 	for(const i in AchievementAPI.instances)
-		AchievementAPI.instances[i].animationStop();
+		AchievementAPI.instances[i].animationStop(true);
 })

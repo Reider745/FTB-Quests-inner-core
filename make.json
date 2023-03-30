@@ -4,7 +4,7 @@
 			"name": "FTB Quests",
 			"description": "This is sample description",
 			"author": "Reider ___",
-			"version": "Beta 1.0",
+			"version": "Beta 2.1.4",
 			"icon": "src/icon.png"
 		},
 		"api": "CoreEngine"
@@ -21,7 +21,7 @@
 			"nativejs"
 		],
 		"excludeFromRelease": [],
-		"pushTo": "storage/emulated/0/games/horizon/packs/innercore-test-b113-performance-beta-v2/modpacks/skyblock/mods/FTBQuests",
+		"pushTo": "storage/emulated/0/games/horizon/packs/innercore-test-b113-performance-beta-v2/modpacks/YouTube/mods/FTBQuests",
 		"ndkPath": null
 	},
 	"resources": [
