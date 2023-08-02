@@ -304,6 +304,7 @@ Callback.addCallback("PostLoaded", function(){
                 .setHandlerClose((config) => {
                     main.setDebug(config.quest_editor);
                 })
+                .apply()
             );
         
         for(let i in element.tabs){

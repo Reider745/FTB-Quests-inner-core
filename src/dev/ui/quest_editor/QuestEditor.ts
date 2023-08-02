@@ -172,6 +172,9 @@ class QuestEditor extends StandartTabElement {
             }
         }).openCenter();
     }
+    public isEdit(): boolean {
+        return false;
+    }
     public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: globalAndroid.graphics.Canvas, scale: number): boolean {
         if(this.tab.main.selected_tab === null || this.tab.main.selected_tab.path === undefined)
             return false;

@@ -23,6 +23,11 @@ class TabSetting extends StandartTabElement {
         });
     }
 
+    public apply(): TabSetting {
+        this.han(this.setting.getConfig());
+        return this;
+    }
+
     public isEdit(): boolean {
         return false;
     }

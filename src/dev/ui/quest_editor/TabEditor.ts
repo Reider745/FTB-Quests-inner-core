@@ -58,6 +58,9 @@ class TabEditor extends StandartTabElement {
             })
         ui.openCenter();
     }
+    public isEdit(): boolean {
+        return false;
+    }
     public onClick(position: Vector, container: ItemContainer, tileEntity: TileEntity, window: UI.Window, canvas: globalAndroid.graphics.Canvas, scale: number): boolean {
         TabEditor.openEditor(this.tab.main, null, this.isLeft, true);
         return false;
