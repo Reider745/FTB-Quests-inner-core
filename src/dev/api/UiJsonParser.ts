@@ -49,6 +49,8 @@ interface IUiMain {
     identifier: string;
     save: boolean;
     debug: boolean;
+    setting?: boolean;
+    setting_save_path?: string;
     item: {
         createItem?: {
             id: string,
@@ -91,8 +93,11 @@ class UiJsonParser {
         return {en: name};
     }
 
+    public path: string;
+
     constructor(path: string){
         if(!FileTools.isExists(path)) return;
+        this.path = path;
         let object: IUiMain | IUiTabs | IUiQuest = FileTools.ReadJSON(path);
         if(object.type == "main"){
             if(UiJsonParser.mains[path]) return;
@@ -262,7 +267,7 @@ class UiJsonParser {
         }
     }
 
-    static getIds(ids: string[] ): number[] {
+    static getIds(ids: string[]): number[] {
         let result = [];
         for(let i in ids)
             result.push(eval(ids[i]));
@@ -285,12 +290,22 @@ Callback.addCallback("PostLoaded", function(){
         let element: IUiMain = UiJsonParser.mains[key].main;
         if(element.item.createItem){
             IDRegistry.genItemID(element.item.createItem.id);
-            Item.createItem(element.item.createItem.id, element.item.createItem.name, element.item.createItem.texture);
+            Item.createItem(element.item.createItem.id, element.item.createItem.name, element.item.createItem.texture, {
+                stack: 1
+            });
         }
         let main = new UiMainBuilder(element.identifier);
         main.path = UiJsonParser.mains[key].path;
         main.addRenderRight(new TabCloseElement("close_button"));
         main.setDebug(element.debug);
+
+        if(element.setting === undefined || element.setting)
+            main.addRenderRight(new TabSetting("setting_tab", "settings", UiJsonParser.getDirectory(main.path) + (element.setting_save_path || "book_save.json"))
+                .setHandlerClose((config) => {
+                    main.setDebug(config.quest_editor);
+                })
+            );
+        
         for(let i in element.tabs){
             let tab = element.tabs[i];
             if(typeof tab == "string")
@@ -306,7 +321,7 @@ Callback.addCallback("PostLoaded", function(){
         if(element.save)
             main.registerSave();
         main.registerItem(eval(element.item.ui_item));
-        Callback.invokeCallback("MainRegister", main.getClientName());
+        Callback.invokeCallback("MainRegister", main.getClientName(), main);
     }
     Callback.invokeCallback("EndRegisterUi");
 });

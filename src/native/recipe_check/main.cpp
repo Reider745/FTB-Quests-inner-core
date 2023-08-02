@@ -64,7 +64,7 @@ class RecipesList {
 #include <mod.h>
 class SkyFactoryModule : public Module {
     public:
-        SkyFactoryModule(): Module("skyfactory"){}
+        SkyFactoryModule(): Module("ftbquests"){}
         virtual void initialize(){
 
         }
@@ -77,19 +77,19 @@ MAIN {
 std::map<long long, std::vector<int>> RecipesList::ids;
 
 extern "C" {
-    JNIEXPORT void JNICALL Java_com_skyfactory_RecipeList_add(JNIEnv* env, jobject obj, jlong player, jint value){
+    JNIEXPORT void JNICALL Java_com_ftbquests_RecipeList_add(JNIEnv* env, jobject obj, jlong player, jint value){
         RecipesList::add((long long) player, (int) value);
     }
-    JNIEXPORT void JNICALL Java_com_skyfactory_RecipeList_clear(JNIEnv* env, jobject obj){
+    JNIEXPORT void JNICALL Java_com_ftbquests_RecipeList_clear(JNIEnv* env, jobject obj){
         RecipesList::clear();
     }
-    JNIEXPORT jintArray JNICALL Java_com_skyfactory_RecipeList_get(JNIEnv* env, jobject obj, jlong player){
+    JNIEXPORT jintArray JNICALL Java_com_ftbquests_RecipeList_get(JNIEnv* env, jobject obj, jlong player){
         return RecipesList::get(env, (long long) player);
     }
-    JNIEXPORT jlongArray JNICALL Java_com_skyfactory_RecipeList_getPlayers(JNIEnv* env, jobject obj){
+    JNIEXPORT jlongArray JNICALL Java_com_ftbquests_RecipeList_getPlayers(JNIEnv* env, jobject obj){
         return RecipesList::get(env);
     }
-    JNIEXPORT jboolean JNICALL Java_com_skyfactory_RecipeList_is(JNIEnv* env, jobject obj, jlong player, jintArray items){
+    JNIEXPORT jboolean JNICALL Java_com_ftbquests_RecipeList_is(JNIEnv* env, jobject obj, jlong player, jintArray items){
         jsize size = env->GetArrayLength(items);
         std::vector<int> arr(size);
         env->GetIntArrayRegion(items, 0, size, &arr[0]);

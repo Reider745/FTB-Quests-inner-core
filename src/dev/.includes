@@ -1,9 +1,15 @@
 header.ts
 
 api/TextureBuilder.ts
+api/minecraft_online/FileSystem.ts
+api/minecraft_online/CodeInitialization.js
+api/minecraft_online/PatchedManager.ts
+api/minecraft_online/MinecraftOnline.ts
+
 
 ui/UiDialogBase.ts
 ui/UiDialog.ts
+ui/quest_editor/api/UiDialogStyles.ts
 ui/Quest.ts
 ui/UiStyle.ts
 ui/UiTabsBuilder.ts
@@ -12,6 +18,7 @@ ui/TabCloseElement.ts
 ui/UiMainBuilder.ts
 ui/Achievement.ts
 ui/GroupTabElement.ts
+ui/TabSetting.ts
 
 quests_utils/GiveItems.ts
 

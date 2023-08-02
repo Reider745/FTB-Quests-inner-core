@@ -476,6 +476,48 @@ class SettingTranslationElement extends SettingButtonTextElement {
     }
 };
 
+class SettingSwitchElement extends SettingElement {
+    private active: boolean;
+    private scale: number;
+
+    constructor(configName: string, scale: number = 2.5, def: boolean = false){
+        super();
+        this.configName = configName;
+        this.active = def;
+        this.scale = scale;
+    }
+
+    public getSize(): Size {
+        return {
+            width: 30 * this.scale,
+            height: 16 * this.scale
+        }
+    }
+
+    public initConfig(config: any): void {
+        if(config)
+            this.active = config;
+    }
+
+    public build(dialog: UiDialogSetting, content: com.zhekasmirnov.innercore.api.mod.ui.window.WindowContent, org_size: Size, size: Size, id: string): UI.Elements[] {
+        let texture = "default_switch_" + (this.active ? "on" : "off");
+        let self = this;
+
+        return [
+            {type: "button", x: 0, y: 0, bitmap: texture, bitmap2: texture + "_hover", scale: this.scale, clicker: {
+                onClick(){
+                    self.active = !self.active;
+                    dialog.configs[self.configName] = self.active;
+
+                    dialog.close();
+                    dialog.build();
+                    dialog.openCenter();
+                }
+            }}
+        ];
+    }
+}
+
 interface IUiDialogSetting {
     newHeigth: boolean,
     element: SettingElement
@@ -492,6 +534,10 @@ class UiDialogSetting extends UiDialogBase {
         return this;
     }
 
+    public add(element: SettingElement, newHeigth?: boolean): UiDialogSetting {
+        return this.addElement(element, newHeigth);
+    }
+
     constructor(title: string){
         super(title);
         this.texture = "icon_mod_compile";
@@ -503,6 +549,10 @@ class UiDialogSetting extends UiDialogBase {
         for(let el of this.elements)
             el.element.initConfig(this.configs[el.element.configName]);
         return this;
+    }
+
+    public getConfig(): {[key: string]: any} {
+        return this.configs;
     }
 
     public setTextureExit(texture: string): UiDialogSetting{

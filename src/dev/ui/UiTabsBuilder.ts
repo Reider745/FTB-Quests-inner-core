@@ -36,7 +36,12 @@ class UiTabsBuilder {
             }
         return null;
     }
-
+    public remove(id: string): StandartTabElement {
+        for(let i = 0;i < this.elements.length;i++)
+            if(this.elements[i].getId() == id)
+                return this.elements.splice(i, 1)[0];
+        return null;
+    }
     public getAllTab(): string[] {
         let tabs = [];
         for(let i in this.elements)
@@ -143,7 +148,7 @@ class UiTabsBuilder {
     }
 
     protected onLongClick(element: StandartTabElement, position: Vector, container, tileEntity, window, canvas, scale): void {
-        if(this.main.isDebug()){
+        if(this.main.isDebug() && element.isEdit()){
             let self = this;
             let ui = new UiDialogSetting("What?")
                 .addElement(new SettingButtonTextElement(Translation.translate("Delete")).setClick(function(){

@@ -44,16 +44,23 @@ ModAPI.registerAPI("FTBQuests", {
     UiTabsBuilder: UiTabsBuilder,
     Quest: Quest,
     TabCloseElement: TabCloseElement,
+    TabSetting: TabSetting,
+
     RecipeCheck: RecipeCheck,
     DestroyBlocks: DestroyBlocks,
     AchievementAPI: AchievementAPI,
+
     UiDialogBaseStyle: UiDialogBaseStyle,
     UiDialogStyle: UiDialogStyle,
     UiDialog: UiDialog,
     UiDialogBase: UiDialogBase,
+    UiStyle: UiStyle,
+    MinecraftDialogStyle: MinecraftDialogStyle,
+
     UiTabStyle: UiTabStyle,
     UiJsonParser: UiJsonParser,
-    UiStyle: UiStyle,
+    
+
     CloseButtonStyle: CloseButtonStyle,
     GiveItems: GiveItems,
     UiDialogSetting: UiDialogSetting,
@@ -70,7 +77,8 @@ ModAPI.registerAPI("FTBQuests", {
         SettingTextElement: SettingTextElement,
         SettingButtonTextElement: SettingButtonTextElement,
         SettingSlotElement: SettingSlotElement,
-        SettingTranslationElement: SettingTranslationElement
+        SettingTranslationElement: SettingTranslationElement,
+        SettingSwitchElement: SettingSwitchElement
     },
     requireGlobal(cmd){
         return eval(cmd);

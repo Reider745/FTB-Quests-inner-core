@@ -31,6 +31,11 @@ function setTimeout(func: () => void, tick: number){
 		},
 	})
 }
+
+Translation.addTranslation(Native.Color.DARK_PURPLE+"Performed quest "+Native.Color.GREEN+"{name}", {
+	ru: Native.Color.DARK_PURPLE+"Выполнен квест "+Native.Color.GREEN+"{name}"
+});
+
 class AchievementStyle {
 	public frame: string = "default_completed";
 	public slot: string = "challenge_completed";
@@ -207,6 +212,20 @@ class AchievementAPI {
 		return this;
 	}
 
+	private client_message: boolean = true;
+
+	public setClientMessage(enable: boolean): AchievementAPI {
+		return this;
+	}
+
+	public canClientMessage(): boolean {
+		return this.client_message;
+	}
+
+	public message(): void {
+		Game.message(Translation.translate(Native.Color.DARK_PURPLE+"Performed quest "+Native.Color.GREEN+"{name}"));
+	}
+
 	public animationStop(v: boolean = false): AchievementAPI {
 		if(!v){
 			let self = this;
@@ -245,6 +264,8 @@ class AchievementAPI {
 		});
 		animation.addListener({
 			onAnimationEnd(){
+				if(self.canClientMessage())
+					self.message();
 				setTimeout(function(){
 					self.animationStop();
 				}, self.pause);

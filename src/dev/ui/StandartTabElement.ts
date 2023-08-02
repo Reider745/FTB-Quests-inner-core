@@ -115,6 +115,9 @@ class StandartTabElement {
     public getTab(name: string): StandartTabElement {
         return null;
     }
+    public isEdit(): boolean {
+        return true;
+    }
     private deleteQuestToTab(tab: IUiTabs, quest: Quest){
         for(let i in tab.quests){
             let quest_ = tab.quests[i];

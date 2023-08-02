@@ -9,9 +9,6 @@ interface IQuest {
     lines?: string[]
 }
 
-let LineDraw = WRAP_JAVA("com.reider.ftb.Line");
-let Vec2 = WRAP_JAVA("com.reider.ftb.Vec2");
-
 class Quest {
     protected description: IQuest;
     public tab: StandartTabElement;

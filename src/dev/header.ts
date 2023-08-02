@@ -61,8 +61,8 @@ function onSystemUiVisibility(win: UI.Window): void{
 Партия Ленина — сила народная
 Нас к торжеству коммунизма ведёт!
 */
-
-let LineBuilder = WRAP_JAVA("com.LineBuilder");
+const ItemAir: ItemInstance = {id: 0, count: 0, data: 0};
+let LineBuilder = WRAP_JAVA("com.ftbquests.LineBuilder");
 
 LineBuilder.boot();
 

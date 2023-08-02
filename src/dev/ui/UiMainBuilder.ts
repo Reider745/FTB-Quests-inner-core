@@ -35,8 +35,26 @@ class UiMainBuilder {
     }
 
     public setDebug(debug: boolean): UiMainBuilder {
+        if(debug){
+            this.addRenderLeft(new TabEditor("tab_added"));
+            this.addRenderRight(new QuestEditor("quest_added"));
+        }else if(this.getTab(false, "quest_added")){
+            this.removeLeft("tab_added");
+            this.removeRight("quest_added");
+        }
+        this.reopen();
         this.debug = debug;
         return this;
+    }
+
+    public reopen(): boolean {
+        let win = this.getUi();
+        if(win){
+            this.getUi().close();
+            this.open();
+            return true;
+        }
+        return false;;
     }
 
     public isDebug(): boolean {
@@ -54,14 +72,7 @@ class UiMainBuilder {
 
         this.ui_left.setUiMainBuilder(this, new UI.Window());
         this.ui_right.setUiMainBuilder(this, new UI.Window());
-        let self = this;
-        Callback.addCallback("MainRegister", function(name: string){
-            if(client_name == name && self.isDebug()){
-                self.addRenderLeft(new TabEditor("tab_added"));
-                self.addRenderRight(new QuestEditor("quest_added"));
-            }
-        });
-
+    
         UiMainBuilder.all_main[client_name] = this;
     }
 
@@ -194,7 +205,18 @@ class UiMainBuilder {
     public getUiRight(): UiTabsBuilder {
         return this.ui_right;
     }
-    public addRender(isLeft: boolean, element: StandartTabElement){
+    public removeLeft(id: string): StandartTabElement {
+        return this.ui_left.remove(id);
+    }
+    public removeRight(id: string): StandartTabElement {
+        return this.ui_right.remove(id);
+    }
+    public remove(isLeft: boolean, id: string): StandartTabElement {
+        if(isLeft)
+            return this.ui_left.remove(id);
+        return this.ui_right.remove(id);
+    }
+    public addRender(isLeft: boolean, element: StandartTabElement): UiMainBuilder{
         if(isLeft)
             return this.addRenderLeft(element);
         return this.addRenderRight(element);

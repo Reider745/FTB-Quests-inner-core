@@ -1,4 +1,4 @@
-package com.skyfactory;
+package com.ftbquests;
 
 public class RecipeList {
     native public static void add(long player, int id);

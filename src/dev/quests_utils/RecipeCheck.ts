@@ -1,4 +1,4 @@
-const RecipesUtil = WRAP_JAVA("com.skyfactory.RecipeList");
+const RecipesUtil = WRAP_JAVA("com.ftbquests.RecipeList");
 
 interface IRecipeCheck {
 	items: number[];
