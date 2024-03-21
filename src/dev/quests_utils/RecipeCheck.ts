@@ -7,8 +7,8 @@ namespace RecipesUtil {
 		let items_crafts = itemsCraft[player];
 		if(!items_crafts) return false;
 
-		for(let item in items_crafts)
-			if(items_crafts[item] < 1)
+		for(let item of items)
+			if((items_crafts[item] || 0) < 1)
 				return false;
 
 		return true;

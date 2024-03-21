@@ -32,8 +32,8 @@ function setTimeout(func: () => void, tick: number){
 	})
 }
 
-Translation.addTranslation(Native.Color.DARK_PURPLE+"Performed quest "+Native.Color.GREEN+"{name}", {
-	ru: Native.Color.DARK_PURPLE+"Выполнен квест "+Native.Color.GREEN+"{name}"
+Translation.addTranslation(Native.Color.DARK_PURPLE+"Performed quest "+Native.Color.GREEN, {
+	ru: Native.Color.DARK_PURPLE+"Выполнен квест "+Native.Color.GREEN
 });
 
 class AchievementStyle {
@@ -223,7 +223,7 @@ class AchievementAPI {
 	}
 
 	public message(): void {
-		Game.message(Translation.translate(Native.Color.DARK_PURPLE+"Performed quest "+Native.Color.GREEN+"{name}"));
+		Game.message(Translation.translate(Native.Color.DARK_PURPLE+"Performed quest "+Native.Color.GREEN)+this.title);
 	}
 
 	public animationStop(v: boolean = false): AchievementAPI {
