@@ -77,7 +77,7 @@ class UiJsonParser {
     static translations: {[key: string]: {[key: string]: string}} = {};
 
     static getDirectory(path: string){
-        let files: string[] = path.split("/");
+        let files: string[] = path.replace(/\\/g, '/').split("/");
         files.pop();
         let result = "";
         for(let file of files)
@@ -252,7 +252,7 @@ class UiJsonParser {
         let file: IUiMain = FileTools.ReadJSON(path);
         let langs = [];
         for(let path of file.translations)
-            langs.push(path.split("/").pop().split(".")[0]);
+            langs.push(path.replace(/\\/g, '/').split("/").pop().split(".")[0]);
         return langs
     }
 
@@ -261,8 +261,8 @@ class UiJsonParser {
         let json: IUiMain = FileTools.ReadJSON(pathMain);
         for(let path of json.translations){
             let text = FileTools.ReadText(this.getDirectory(pathMain) + path);
-            let translation = translations[path.split("/").pop().split(".")[0]];
-            if(translation && path.split("/").pop().split(".")[0] != translation) text+="\n"+translations.en+":="+translation;
+            let translation = translations[path.replace(/\\/g, '/').split("/").pop().split(".")[0]];
+            if(translation && path.replace(/\\/g, '/').split("/").pop().split(".")[0] != translation) text+="\n"+translations.en+":="+translation;
             FileTools.WriteText(this.getDirectory(pathMain) + path, text);
         }
     }

@@ -11,8 +11,10 @@ interface IDestroyBlocks {
 	description?: string;
 };
 
+type BLOCKS = {[key: string]: {[key: string]: boolean}};
+
 class DestroyBlocks {
-	static blocks: {[key: string]: {[key: string]: boolean}} = {};
+	static blocks: BLOCKS = {};
 	static register_checks: IDestroyBlocks[] = [];
 
 	static isDestroys(player: number, arr: string[]): boolean {

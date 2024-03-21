@@ -4,19 +4,22 @@
 
 let height = (function(){
     let size = new android.graphics.Point();
-    UI.getContext().getWindowManager().getDefaultDisplay().getSize(size);
+    try{
+        UI.getContext().getWindowManager().getDefaultDisplay().getSize(size);
+    }catch(e){
+        return 1000;
+    }
     return size.y;
 })();
 let width = (function(){
     let size = new android.graphics.Point();
-    UI.getContext().getWindowManager().getDefaultDisplay().getSize(size);
+    try{
+        UI.getContext().getWindowManager().getDefaultDisplay().getSize(size);
+    }catch(e){
+        return 1000;
+    }
     return size.x;
 })();
-
-Network.addClientPacket("", function(data: any){
-    if(data.player != Player.get())
-        UiMainBuilder.quests = data.quests;
-});
 
 class UiMainBuilder {
     public group: UI.WindowGroup;
@@ -173,6 +176,18 @@ class UiMainBuilder {
     }
     public registerItem(id: number | string): UiMainBuilder {
         let self = this;
+
+        if(typeof id == "number"){
+            for(let key in ItemID)
+                if(ItemID[key] == id)
+                    id = key;
+
+            for(let key in VanillaItemID)
+                    if(VanillaItemID[key] == id)
+                        id = key;
+            //пошли вы на*** с блоками, знай если кто-то так делает, то ты конченный с*к* имб*ц*л метод называется registerItem, а не  registerBlock
+        }
+
         ItemContainer.registerScreenFactory("FTBQuests."+id+"."+self.client_name, (container) => {
             return self.build(container);
         });

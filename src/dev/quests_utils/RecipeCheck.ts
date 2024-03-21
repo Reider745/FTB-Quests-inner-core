@@ -1,4 +1,45 @@
-const RecipesUtil = WRAP_JAVA("com.ftbquests.RecipeList");
+//const RecipesUtil = WRAP_JAVA("com.ftbquests.RecipeList");
+type ITEMS = {[item: number]: number};
+namespace RecipesUtil {
+	let itemsCraft: {[player: number]: ITEMS} = {};
+
+	export function is(player: number, items: number[]): boolean {
+		let items_crafts = itemsCraft[player];
+		if(!items_crafts) return false;
+
+		for(let item in items_crafts)
+			if(items_crafts[item] < 1)
+				return false;
+
+		return true;
+	}
+
+	export function add(player: number, item: number): void {
+		let items_crafts: ITEMS = (itemsCraft[player] || {});
+
+		items_crafts[item] = (items_crafts[item]||0) + 1;
+
+		itemsCraft[player] = items_crafts;
+	}
+
+	export function getPlayers(): number[] {
+		let players: number[] = [];
+		for(let player in itemsCraft) players.push(Number(player));
+		return players;
+	}
+
+	export function get(player: number): ITEMS {
+		return itemsCraft[player] || {};
+	}
+
+	export function set(player: number, items: ITEMS): void {
+		itemsCraft[player] = items;
+	}
+
+	export function clear(): void {
+		itemsCraft = {};
+	}
+}
 
 interface IRecipeCheck {
 	items: number[];

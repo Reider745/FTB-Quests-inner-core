@@ -93,9 +93,12 @@ class UiDialogBase {
         let self = this;
         let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
         let size = this.getSize();
-        let display = UI.getContext().getWindowManager().getDefaultDisplay();
+        let display = null;
+        try{
+            display = UI.getContext().getWindowManager().getDefaultDisplay();
+        }catch(ignore){}
         let dispaly_size = new android.graphics.Point();
-        display.getSize(dispaly_size);
+        display && display.getSize(dispaly_size);
 
         let location = new UI.WindowLocation();
 
