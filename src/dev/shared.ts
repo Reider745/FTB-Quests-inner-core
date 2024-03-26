@@ -9,13 +9,13 @@
 
 type SAVE = {
     new_recipes_status: boolean,
-    recipes: {},//старая хуйня, мне на её похуй
+    recipes: Nullable<{}>,//старая хуйня, мне на её похуй
     recipes_new: {[player: number]: ITEMS},
     blocks: BLOCKS
 };
 
-Saver.addSavesScope("FTBQuests",
-	function read(scope: SAVE){
+Saver.registerObjectSaver("FTBQuests", {
+    read(scope: SAVE){
         if(!scope.new_recipes_status){//legacy save
             let keys = Object.keys(scope.recipes);
             for(let i in keys){
@@ -30,8 +30,10 @@ Saver.addSavesScope("FTBQuests",
             RecipesUtil.set(Number(player), RECIPES[player]);
 		
 		DestroyBlocks.blocks = scope.blocks||{};
-	}, function save(): SAVE {
-		const recipes = {};
+    },
+    
+    save(): SAVE {
+        const recipes = {};
 		const players = RecipesUtil.getPlayers();
 
 		for(const i in players){
@@ -44,8 +46,20 @@ Saver.addSavesScope("FTBQuests",
             recipes: {},
 			recipes_new: recipes,
 			blocks: DestroyBlocks.blocks||{}
-		}
+		};
+    },
+
+    //Возвращает этот объект, если при чтение произошла ошибка, к примеру при первом входе(требуется b116)
+    getDefaultSaves(): SAVE {
+        return {
+            new_recipes_status: true,
+            recipes: {},
+            recipes_new: {},
+            blocks: {}
+        };
+    }
 });
+
 Callback.addCallback('LevelLeft', function(){
     RecipesUtil.clear();
     DestroyBlocks.blocks = {};

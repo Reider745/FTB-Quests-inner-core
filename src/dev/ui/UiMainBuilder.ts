@@ -21,6 +21,38 @@ let width = (function(){
     return size.x;
 })();
 
+type QUEST_STORAGE = {[quest_id: string]: boolean};
+type QUESTS_STORAGE_PLAYERS = {[player: number]: QUEST_STORAGE};
+
+interface PacketUpdateStatusQuest {
+    client_ui_name: string;
+    isLeft: boolean;
+    tab: string;
+    quest: string;
+    value: boolean;
+};
+
+interface PacketSynchronizationQuests {
+    client_ui_name: string;
+    quests: QUEST_STORAGE;
+};
+
+Network.addClientPacket("ftb.synchronization_quests", (data: PacketSynchronizationQuests) => {
+    let players = UiMainBuilder.quests[data.client_ui_name] || {};
+    players[Player.get()] = data.quests;
+    UiMainBuilder.quests[data.client_ui_name] = players;
+});
+
+Network.addClientPacket("ftb.update_status_quest", (data: PacketUpdateStatusQuest) => 
+    UiMainBuilder.all_main[data.client_ui_name]
+        .updateStatusQuestClient(data.isLeft, data.tab, data.quest, data.value));
+
+type SAVE_QUESTS = {
+    legacy: Nullable<boolean>;
+    quests:  {[key: string]: boolean};//старый формат хранения, не удобен для синхронизации квестов между клиентом и сервера
+    new_quests: Nullable<QUESTS_STORAGE_PLAYERS>
+};
+
 class UiMainBuilder {
     public group: UI.WindowGroup;
     public main: UI.Window;
@@ -28,7 +60,7 @@ class UiMainBuilder {
     public ui_left: UiTabsBuilder;
     public ui_right: UiTabsBuilder;
     public client_name: string;
-    static quests: {[key: string]: {[key: string]: boolean}} = {};
+    static quests: {[client_ui_name: string]: QUESTS_STORAGE_PLAYERS} = {};
     private debug: boolean = false;
     public container: ItemContainer;
 
@@ -66,7 +98,7 @@ class UiMainBuilder {
 
     public path: string;
 
-    constructor(client_name:string){
+    constructor(client_name: string){
         this.main = new UI.Window();
         this.style = new UiStyle();
         this.ui_left = new UiTabsBuilder("left", true);
@@ -77,6 +109,13 @@ class UiMainBuilder {
         this.ui_right.setUiMainBuilder(this, new UI.Window());
     
         UiMainBuilder.all_main[client_name] = this;
+
+        //синхронизация о выполниных квестов с игроком
+        Callback.addCallback("ServerPlayerLoaded", (player) => {
+            let client = Network.getClientForPlayer(player);
+            let players = UiMainBuilder.quests[client_name] || {};
+            client && client.send("ftb.synchronization_quests", players[Player.get()] || {});
+        });
     }
 
     public getClientName(): string {
@@ -132,44 +171,90 @@ class UiMainBuilder {
 
     public giveQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), value: boolean = true, is: boolean = true): boolean {
         let result = true;
-        if(!UiMainBuilder.quests[this.client_name])
-            UiMainBuilder.quests[this.client_name] = {};
-        if(!UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player]){
+
+        let players = UiMainBuilder.quests[this.client_name] = UiMainBuilder.quests[this.client_name] || {};
+        let storages = players[player] = players[player] || {};
+
+        if(!storages[isLeft+":"+tab+":"+quest]){
             if(is && this.isGive(isLeft, tab, quest, player))
-                UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
+                storages[isLeft+":"+tab+":"+quest] = value;
             else if(!is)
-                UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player] = value;
+                storages[isLeft+":"+tab+":"+quest] = value;
             else 
                 result = false;
         }else
             result = false;
+        
         Callback.invokeCallback("QuestGive", this, isLeft, tab, quest, player, value, is, result);
-        Network.sendToAllClients("QuestGive", {
-            quests: UiMainBuilder.quests,
-            player: Number(Player.get())
-         });
+
+        const client = Network.getClientForPlayer(player);
+        const data: PacketUpdateStatusQuest = {
+            client_ui_name: this.client_name,
+            isLeft: isLeft,
+            tab: tab,
+            quest: quest,
+            value: value
+        };
+        client && client.send("ftb.update_status_quest", data);
+
         return result;
     }
+
     public give(isLeft: boolean, tab: string, quest: string, player: number = Player.get(), description: string, title: string){
         if(!this.canQuest(isLeft, tab, quest, player) && this.giveQuest(isLeft, tab, quest, player, true, true) && description != undefined && title != undefined)
 			AchievementAPI.give(player, title,description, this.getQuest(isLeft, tab, quest).getItem());
     }
+
+    public updateStatusQuestClient(isLeft: boolean, tab: string, quest: string, value: boolean): void {
+        const player = Player.get();
+
+        let players = UiMainBuilder.quests[this.client_name] = UiMainBuilder.quests[this.client_name] || {};
+        let storages = players[player] = players[player] || {};
+
+        storages[isLeft+":"+tab+":"+quest] = value;
+    }
+
     public canQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
-        return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][isLeft+":"+tab+":"+quest+":"+player];
+        return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][player] &&  !!UiMainBuilder.quests[this.client_name][player][isLeft+":"+tab+":"+quest];
     }
     public registerSave(): UiMainBuilder {
         let self = this;
-        Saver.addSavesScope("FTBQuests."+this.client_name, 
-            function(scope: any){
-                UiMainBuilder.quests[self.client_name]= scope.quests || {};
+
+        Saver.registerObjectSaver("FTBQuests."+this.client_name, {
+            read(scope: SAVE_QUESTS){
+                let quests = scope.new_quests || {};
+
+                if(!scope.legacy){
+                    for(let key in scope.quests){
+                        let list = key.split(":");
+                        let player = list.pop();
+
+                        let players = quests[player] = quests[player] || {};
+                        players[list[0]+":"+list[1]+":"+list[2]] = scope.quests[key];
+                    }
+                }
+
+                UiMainBuilder.quests[self.client_name] = quests;
             },
-            function(){
+
+            save(): SAVE_QUESTS {
                 return {
-                    quests: UiMainBuilder.quests[self.client_name]
+                    legacy: false,
+                    quests: {},
+                    new_quests: UiMainBuilder.quests[self.client_name] || {}
                 };
+            },
+            
+            //Возвращает этот объект, если при чтение произошла ошибка, к примеру при первом входе(требуется b116)
+            getDefaultSaves(): SAVE_QUESTS {
+                return {
+                    legacy: false,
+                    new_quests: {},
+                    quests: {}
+                }
             }
-        );
-        Callback.addCallback('LevelLeft', function(){
+        });
+        Callback.addCallback('LevelLeft', function(){//Устаревшие с b116
             UiMainBuilder.quests[self.client_name] = {};
         });        
         return this;
