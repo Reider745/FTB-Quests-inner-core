@@ -14,50 +14,38 @@ type SAVE = {
     blocks: BLOCKS
 };
 
-Saver.registerObjectSaver("FTBQuests", {
-    read(scope: SAVE){
-        if(!scope.new_recipes_status){//legacy save
-            let keys = Object.keys(scope.recipes);
-            for(let i in keys){
-                let recipes = scope.recipes[keys[i]];
-                for(let a in recipes)
-                    RecipesUtil.add(Number(keys[i]), recipes[a]);
-            }
+Saver.addSavesScope("FTBQuests", (scope: SAVE) => {
+    scope = scope || {new_recipes_status: true, recipes: {}, recipes_new: {}, blocks: {}};
+
+    if(!scope.new_recipes_status){//legacy save
+        let keys = Object.keys(scope.recipes || {});
+        for(let i in keys){
+            let recipes = scope.recipes[keys[i]];
+            for(let a in recipes)
+                RecipesUtil.add(Number(keys[i]), recipes[a]);
         }
-
-        const RECIPES = scope.recipes_new;
-        for(let player in RECIPES)
-            RecipesUtil.set(Number(player), RECIPES[player]);
-		
-		DestroyBlocks.blocks = scope.blocks||{};
-    },
-    
-    save(): SAVE {
-        const recipes = {};
-		const players = RecipesUtil.getPlayers();
-
-		for(const i in players){
-            const player = players[i];
-			recipes[player] = RecipesUtil.get(player);
-        }
-		
-		return {
-            new_recipes_status: true,
-            recipes: {},
-			recipes_new: recipes,
-			blocks: DestroyBlocks.blocks||{}
-		};
-    },
-
-    //Возвращает этот объект, если при чтение произошла ошибка, к примеру при первом входе(требуется b116)
-    getDefaultSaves(): SAVE {
-        return {
-            new_recipes_status: true,
-            recipes: {},
-            recipes_new: {},
-            blocks: {}
-        };
     }
+
+    const RECIPES = scope.recipes_new || {};
+    for(let player in RECIPES)
+        RecipesUtil.set(Number(player), RECIPES[player]);
+		
+	DestroyBlocks.blocks = scope.blocks||{};
+}, () => {
+    const recipes = {};
+	const players = RecipesUtil.getPlayers();
+
+	for(const i in players){
+        const player = players[i];
+		recipes[player] = RecipesUtil.get(player);
+    }
+		
+	return {
+        new_recipes_status: true,
+        recipes: {},
+		recipes_new: recipes,
+		blocks: DestroyBlocks.blocks||{}
+	};
 });
 
 Callback.addCallback('LevelLeft', function(){
