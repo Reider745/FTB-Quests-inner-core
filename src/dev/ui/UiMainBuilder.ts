@@ -40,7 +40,6 @@ interface PacketSynchronizationQuests {
 Network.addClientPacket("ftb.synchronization_quests", (data: PacketSynchronizationQuests) => {
     let players = UiMainBuilder.quests[data.client_ui_name] || {};
     players[Player.get()] = data.quests;
-    alert(JSON.stringify(data.quests))
     UiMainBuilder.quests[data.client_ui_name] = players;
 });
 
@@ -220,7 +219,7 @@ class UiMainBuilder {
     }
 
     public canQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
-        return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][":"+player] &&  !!UiMainBuilder.quests[this.client_name][":"+player][isLeft+":"+tab+":"+quest];
+        return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][player] &&  !!UiMainBuilder.quests[this.client_name][player][isLeft+":"+tab+":"+quest];
     }
     public registerSave(): UiMainBuilder {
         let self = this;
