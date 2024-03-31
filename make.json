@@ -4,7 +4,7 @@
 			"name": "FTB Quests",
 			"description": "This is sample description",
 			"author": "Reider ___",
-			"version": "Beta 2.2.1",
+			"version": "Beta 2.2.2",
 			"icon": "src/icon.png"
 		},
 		"api": "CoreEngine"
