@@ -320,8 +320,8 @@ class AchievementAPI {
 	}
 };
 
-Callback.addCallback("LevelLeft", function(){
+Callback.addCallback("LocalLevelLeft", () => {
 	AchievementAPI.cache = [];
 	for(const i in AchievementAPI.instances)
 		AchievementAPI.instances[i].animationStop(true);
-})
+});

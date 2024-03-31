@@ -22,7 +22,7 @@ let width = (function(){
 })();
 
 type QUEST_STORAGE = {[quest_id: string]: boolean};
-type QUESTS_STORAGE_PLAYERS = {[player: number]: QUEST_STORAGE};
+type QUESTS_STORAGE_PLAYERS = {[player: string]: QUEST_STORAGE};
 
 interface PacketUpdateStatusQuest {
     client_ui_name: string;
@@ -40,6 +40,7 @@ interface PacketSynchronizationQuests {
 Network.addClientPacket("ftb.synchronization_quests", (data: PacketSynchronizationQuests) => {
     let players = UiMainBuilder.quests[data.client_ui_name] || {};
     players[Player.get()] = data.quests;
+    alert(JSON.stringify(data.quests))
     UiMainBuilder.quests[data.client_ui_name] = players;
 });
 
@@ -48,7 +49,7 @@ Network.addClientPacket("ftb.update_status_quest", (data: PacketUpdateStatusQues
         .updateStatusQuestClient(data.isLeft, data.tab, data.quest, data.value));
 
 type SAVE_QUESTS = {
-    legacy: Nullable<boolean>;
+    newSave: Nullable<boolean>;
     quests:  {[key: string]: boolean};//старый формат хранения, не удобен для синхронизации квестов между клиентом и сервера
     new_quests: Nullable<QUESTS_STORAGE_PLAYERS>
 };
@@ -114,7 +115,11 @@ class UiMainBuilder {
         Callback.addCallback("ServerPlayerLoaded", (player) => {
             let client = Network.getClientForPlayer(player);
             let players = UiMainBuilder.quests[client_name] || {};
-            client && client.send("ftb.synchronization_quests", players[Player.get()] || {});
+            let packet: PacketSynchronizationQuests = {
+                client_ui_name: client_name,
+                quests: players[player] || {}
+            };
+            client && client.send("ftb.synchronization_quests", packet);
         });
     }
 
@@ -215,45 +220,33 @@ class UiMainBuilder {
     }
 
     public canQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
-        return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][player] &&  !!UiMainBuilder.quests[this.client_name][player][isLeft+":"+tab+":"+quest];
+        return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][":"+player] &&  !!UiMainBuilder.quests[this.client_name][":"+player][isLeft+":"+tab+":"+quest];
     }
     public registerSave(): UiMainBuilder {
         let self = this;
 
-        Saver.registerObjectSaver("FTBQuests."+this.client_name, {
-            read(scope: SAVE_QUESTS){
-                let quests = scope.new_quests || {};
+        Saver.addSavesScope("FTBQuests."+this.client_name, (scope: any) => {
+            let quests = scope.new_quests || {};
 
-                if(!scope.legacy){
-                    for(let key in scope.quests){
-                        let list = key.split(":");
-                        let player = list.pop();
+            if(!scope.newSave){
+                for(let key in scope.quests){
+                    let list = key.split(":");
+                    let player = list.pop();
 
-                        let players = quests[player] = quests[player] || {};
-                        players[list[0]+":"+list[1]+":"+list[2]] = scope.quests[key];
-                    }
-                }
-
-                UiMainBuilder.quests[self.client_name] = quests;
-            },
-
-            save(): SAVE_QUESTS {
-                return {
-                    legacy: false,
-                    quests: {},
-                    new_quests: UiMainBuilder.quests[self.client_name] || {}
-                };
-            },
-            
-            //Возвращает этот объект, если при чтение произошла ошибка, к примеру при первом входе(требуется b116)
-            getDefaultSaves(): SAVE_QUESTS {
-                return {
-                    legacy: false,
-                    new_quests: {},
-                    quests: {}
+                    let players = quests[player] = quests[player] || {};
+                    players[list[0]+":"+list[1]+":"+list[2]] = scope.quests[key];
                 }
             }
+
+            UiMainBuilder.quests[self.client_name] = quests;
+        }, () => {
+            return {
+                newSave: true,
+                quests: {},
+                new_quests: UiMainBuilder.quests[self.client_name] || {}
+            };
         });
+
         Callback.addCallback('LevelLeft', function(){//Устаревшие с b116
             UiMainBuilder.quests[self.client_name] = {};
         });        
