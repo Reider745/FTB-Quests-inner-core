@@ -32,12 +32,18 @@ interface PacketUpdateStatusQuest {
     value: boolean;
 };
 
-interface PacketSynchronizationQuests {
+interface PacketSynchronizationStatusQuests {
     client_ui_name: string;
     quests: QUEST_STORAGE;
 };
 
-Network.addClientPacket("ftb.synchronization_quests", (data: PacketSynchronizationQuests) => {
+type SendQuests = {[tab: string]: [string, IQuest, IJsonDialogBase][]}[];
+interface PacketSynchronizationQuests {
+    client_ui_name: string;
+    quests: SendQuests
+}
+
+Network.addClientPacket("ftb.synchronization_status_quests", (data: PacketSynchronizationStatusQuests) => {
     let players = UiMainBuilder.quests[data.client_ui_name] || {};
     players[Player.get()] = data.quests;
     UiMainBuilder.quests[data.client_ui_name] = players;
@@ -46,6 +52,30 @@ Network.addClientPacket("ftb.synchronization_quests", (data: PacketSynchronizati
 Network.addClientPacket("ftb.update_status_quest", (data: PacketUpdateStatusQuest) => 
     UiMainBuilder.all_main[data.client_ui_name]
         .updateStatusQuestClient(data.isLeft, data.tab, data.quest, data.value));
+
+function installQuestForServer(main: UiMainBuilder, isLeft: boolean, data: PacketSynchronizationQuests): void {
+    let tab_builder = main.getTabsBuilder(isLeft);
+    let tabs = data.quests[isLeft ? 1 : 0];
+
+    for(let tab_id in tabs){
+        let quests = tabs[tab_id];
+        let tab = tab_builder.getTab(tab_id);
+        if(tab){
+            for(let i in quests){
+                let quest = quests[i];
+                if(!tab.getQuest(quest[1].id))
+                    tab.addQuest(Quest.buildForServer(quest[0], quest[1], UiDialogBase.buildFrom(quest[2])));
+            }
+        }
+    }
+}
+
+Network.addClientPacket("ftb.synchronization_quests", (data: PacketSynchronizationQuests) => {
+    let main = UiMainBuilder.all_main[data.client_ui_name];
+    
+    installQuestForServer(main, true, data);
+    installQuestForServer(main, false, data);
+});
 
 type SAVE_QUESTS = {
     newSave: Nullable<boolean>;
@@ -60,11 +90,14 @@ class UiMainBuilder {
     public ui_left: UiTabsBuilder;
     public ui_right: UiTabsBuilder;
     public client_name: string;
-    static quests: {[client_ui_name: string]: QUESTS_STORAGE_PLAYERS} = {};
-    private debug: boolean = false;
     public container: ItemContainer;
 
+    private debug: boolean = false;
+    private send_quests: Nullable<SendQuests> = null;
+
+    static quests: {[client_ui_name: string]: QUESTS_STORAGE_PLAYERS} = {};
     static all_main: {[key: string]: UiMainBuilder} = {};
+
     static getUiMainByName(name: string): Nullable<UiMainBuilder> {
         return UiMainBuilder.all_main[name];
     }
@@ -89,7 +122,7 @@ class UiMainBuilder {
             this.open();
             return true;
         }
-        return false;;
+        return false;
     }
 
     public isDebug(): boolean {
@@ -111,15 +144,49 @@ class UiMainBuilder {
         UiMainBuilder.all_main[client_name] = this;
 
         //синхронизация о выполниных квестов с игроком
+        let self = this;
         Callback.addCallback("ServerPlayerLoaded", (player) => {
             let client = Network.getClientForPlayer(player);
             let players = UiMainBuilder.quests[client_name] || {};
-            let packet: PacketSynchronizationQuests = {
+
+            let packet_status: PacketSynchronizationStatusQuests = {
                 client_ui_name: client_name,
                 quests: players[player] || {}
             };
-            client && client.send("ftb.synchronization_quests", packet);
+            
+            if(!self.send_quests){
+                let send_quests: SendQuests = [{}, {}];
+
+                self.forEach((isLeft, tab, quest) => {
+                    const tab_id = tab.getId();
+                    const quests = send_quests[isLeft ? 1 : 0][tab_id] || [];
+                    const data = quest.externalPacket();
+                    
+                    if(data){
+                        let ui = quest.getDialog();
+                        quests.push([quest.getClientType(), data, ui ? ui.toJson(): null]);
+                    }
+
+                    send_quests[isLeft ? 1 : 0][tab_id] = quests;
+                });
+                
+                self.send_quests = send_quests;
+            }
+
+            let packet_synchronization: PacketSynchronizationQuests = {
+                client_ui_name: client_name,
+                quests: self.send_quests
+            };
+
+            if(client){
+                client.send("ftb.synchronization_status_quests", packet_status);
+                client.send("ftb.synchronization_quests", packet_synchronization);
+            }
         });
+
+        Callback.addCallback("LevelLeft", () => 
+            self.forEach((isLeft, tab, quest) => 
+                quest.canExternal() && tab.deleteQuest(quest.getId())));
     }
 
     public getClientName(): string {
@@ -158,18 +225,28 @@ class UiMainBuilder {
     }
 
     public getQuest(isLeft: boolean, tab: string, quest: string): Quest {
-        let _tab = this.getTab(isLeft, tab);
+        const _tab = this.getTab(isLeft, tab);
         if(_tab != null)
             return _tab.getQuest(quest);
         return null;
     }
 
+    public forEach(func: (isLeft: boolean, tab: StandartTabElement, quest: Quest) => void): void {
+       this.ui_left.forEach(tab => tab.forEach(quest => func(true, tab, quest)));
+       this.ui_right.forEach(tab => tab.forEach(quest => func(false, tab, quest)));
+    }
+
     public isGive(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
         let check = this.getQuest(isLeft, tab, quest);
         let lines = check.getLines();
-        if(this.canQuest(isLeft, tab, quest, player)) return true;
+
+        if(this.canQuest(isLeft, tab, quest, player)) 
+            return true;
+
         for(const element of lines)
-            if(!this.canQuest(isLeft, tab, element, player) || !this.isGive(isLeft, tab, element, player)) return false;
+            if(!this.canQuest(isLeft, tab, element, player) || !this.isGive(isLeft, tab, element, player)) 
+                return false;
+
         return true;
     }
 
@@ -221,6 +298,7 @@ class UiMainBuilder {
     public canQuest(isLeft: boolean, tab: string, quest: string, player: number = Player.get()): boolean {
         return !!UiMainBuilder.quests[this.client_name] && !!UiMainBuilder.quests[this.client_name][player] &&  !!UiMainBuilder.quests[this.client_name][player][isLeft+":"+tab+":"+quest];
     }
+
     public registerSave(): UiMainBuilder {
         let self = this;
 
@@ -278,53 +356,65 @@ class UiMainBuilder {
     }
 
     public selected_tab: StandartTabElement = null;
-
     public selectedTab(builder: UiTabsBuilder, element: StandartTabElement){
         this.selected_tab = element;
         this.ui_left.selectedTab(builder, element);
         this.ui_right.selectedTab(builder, element);
     }
+
     public openTab(builder: UiTabsBuilder, element: StandartTabElement, id?: string){
         this.selectedTab(builder, element);
+
         if(builder.ui.content.elements[builder.prefix+"_"+id])
             builder.ui.content.elements[builder.prefix+"_"+id].bitmap = element.getTextureSelected(this.style);
         builder.buildTabInformation(element, this.group, this.style);
+
         return this;
     }
+
     public getUiLeft(): UiTabsBuilder {
         return this.ui_left;
     }
+
     public getUiRight(): UiTabsBuilder {
         return this.ui_right;
     }
+
     public removeLeft(id: string): StandartTabElement {
         return this.ui_left.remove(id);
     }
+
     public removeRight(id: string): StandartTabElement {
         return this.ui_right.remove(id);
     }
+
     public remove(isLeft: boolean, id: string): StandartTabElement {
         if(isLeft)
             return this.ui_left.remove(id);
         return this.ui_right.remove(id);
     }
+
     public addRender(isLeft: boolean, element: StandartTabElement): UiMainBuilder{
         if(isLeft)
             return this.addRenderLeft(element);
         return this.addRenderRight(element);
     }
+
     public addRenderLeft(element: StandartTabElement): UiMainBuilder{
         this.ui_left.addRender(element);
         return this;
     }
+
     public addRenderRight(element: StandartTabElement): UiMainBuilder{
         this.ui_right.addRender(element);
         return this;
     }
+
     public setStyle(style: UiStyle): UiMainBuilder {
         this.style = style;
         return this;
     }
+
     public getStyle(): UiStyle {
         return this.style;
     }
@@ -333,6 +423,7 @@ class UiMainBuilder {
         this.ui_left.buildServer(container);
         this.ui_right.buildServer(container);
     }
+
     public build(container: ItemContainer): UI.WindowGroup {
         this.container = container
         this.group = new UI.WindowGroup();
@@ -341,6 +432,7 @@ class UiMainBuilder {
         let background = self.style.bitmap;
         let _x = Math.ceil(width / background.getWidth())+1;
         let _y = Math.ceil(height / background.getHeight())+1;
+
         this.main.setContent({
             drawing: [
                 {type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)},
@@ -356,7 +448,8 @@ class UiMainBuilder {
             elements: {
                 //"close": {type: "closeButton", bitmap: this.style.close_main.bitmap, x: 950, y: 0, scale: this.style.close_main.scale}
             }
-        })
+        });
+
         this.group.addWindowInstance("background", this.main);
         this.group.addWindowInstance("main", new UI.Window({
             location: {

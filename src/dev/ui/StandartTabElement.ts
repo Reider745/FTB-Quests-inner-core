@@ -11,11 +11,15 @@ class StandartTabElement {
         this.quests = [];
     }
 
-    public setUiTabsBuilder(tab: UiTabsBuilder): StandartTabElement{
+    public setUiTabsBuilder(tab: UiTabsBuilder): StandartTabElement {
         this.tab = tab;
         if(tab)
             this.isLeft = tab.isLeft;
         return this;
+    }
+
+    public getUitabsBuilder(): UiTabsBuilder {
+        return this.tab;
     }
 
     public getAllQuest(): string[] {
@@ -26,16 +30,24 @@ class StandartTabElement {
     }
 
     public addQuest(quest: Quest): StandartTabElement {
-        if(this.getQuest(quest.getId()) !== null) return this;
+        if(!quest || !quest.onAddedQuest() || this.getQuest(quest.getId()) !== null) return this;
+
         quest.tab = this;
         this.quests.push(quest);
+
         return this;
+    }
+
+    public forEach(func: (quest: Quest) => void): void {
+        for(let i in this.quests)
+            func(this.quests[i]);
     }
 
     public getQuest(name: string): Quest {
         for(const quest of this.quests)
             if(quest.getId() == name)
                 return quest;
+
         return null;
     }
 
@@ -43,16 +55,19 @@ class StandartTabElement {
         let names = tab.getAllQuest();
         for(const name of names)
             this.addQuest(tab.getQuest(name));
+
         return this;
     }
 
     public build(window: UI.Window): void {
         let content = window.getContent();
+        let width: number = 0;
+        let heigth: number = 0;
+        let location = window.getLocation();
+
         content.drawing = [{type: "color", color: android.graphics.Color.argb(0, 0, 0, 0)}];
         content.elements = {};
 
-        let width: number = 0;
-        let heigth: number = 0;
         this.quests.forEach(element => {
             element.tab = this;
             let object = element.build(window);
@@ -60,9 +75,10 @@ class StandartTabElement {
             heigth = Math.max(heigth, object.y+object.size);
             content.elements[element.getId()] = object;
         });
+
         window.setContent(content);
         window.forceRefresh();
-        let location = window.getLocation();
+
         location.setScroll(width, heigth);
         window.updateScrollDimensions();
     }
@@ -70,23 +86,26 @@ class StandartTabElement {
     public getId(): string {
         return this.id;
     }
+
     private name: string;
     public getDisplayName(): string {
         return this.name || "Display Name";
     }
+
     public setDisplayName(name: string): StandartTabElement {
         this.name = name;
         return this;
     }
+
     public isDisplay(): boolean {
         return true;
     }
 
     private item: ItemInstance;
     public getItem(): ItemInstance {
-        let items = Object.keys(ItemID)
         return this.item || {id: 0, count: 1, data: 0};
     }
+
     public setItem(item: ItemInstance): StandartTabElement {
         this.item = item;
         return this;
@@ -118,6 +137,7 @@ class StandartTabElement {
     public isEdit(): boolean {
         return true;
     }
+
     private deleteQuestToTab(tab: IUiTabs, quest: Quest){
         for(let i in tab.quests){
             let quest_ = tab.quests[i];
@@ -127,27 +147,36 @@ class StandartTabElement {
             }
         }
     }
+
     public deleteQuest(name: string){
         for(let i in this.quests){
             let quest = this.quests[i];
+
             if(quest.getId() == name){
+                if(!quest.onRemoveQuest())
+                    break;
+
                 this.quests.splice(Number(i), 1);
                 let file: IUiMain | IUiTabs | IUiQuest = FileTools.ReadJSON(quest.path);
+
                 if(file.type == "main"){
                     for(let tab of file.tabs)
                         if(typeof tab == "object" && tab.identifier == this.getId())
                             this.deleteQuestToTab(tab, quest);
+                    
                     FileTools.WriteJSON(quest.path, file, true);
                 }else if(file.type == "tab"){
                     this.deleteQuestToTab(file, quest);
                     FileTools.WriteJSON(quest.path, file, true);
                 }else
                     new java.io.File(quest.path).delete();
+
                 return this;
             }
         }
         return this;
     }
+
     public replaceQuest(name: string, quest: Quest){
         for(let i in this.quests)
             if(this.quests[i].getId() == name){

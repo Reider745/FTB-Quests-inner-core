@@ -24,7 +24,13 @@ let McTypeface = (() => {
     let paint = new android.graphics.Paint();
     paint.setTypeface(WRAP_JAVA("com.zhekasmirnov.innercore.utils.FileTools").getMcTypeface());
     return paint;
-})()
+})();
+
+interface IJsonDialogBase {
+    type: string;
+    message: string;
+    status_exit: boolean;
+}
 
 class UiDialogBase {
     protected message: string;
@@ -43,14 +49,17 @@ class UiDialogBase {
 
         this.build();
     }
+
     public setStyle(style: UiDialogBaseStyle): UiDialogBase {
         this.style = style;
         return this;
     }
+
     static getWidthText(message: string, size: number): number {
         McTypeface.setTextSize(size);
         return Number(McTypeface.measureText(message));
     }
+
     static getSize(message: string, size: number): Size {
         let font = new Font({size: size});
         let lines = message.split("\n");
@@ -64,9 +73,11 @@ class UiDialogBase {
         }
         return new Size(width, height);
     }
+
     public getSize(): Size {
         return UiDialogBase.getSize(this.message, this.style.size);
     }
+
     public openCenter(location: UI.WindowLocation = new UI.WindowLocation()){
         let size = this.getSize();
         if(size.height < this.ui.location.height)
@@ -78,17 +89,20 @@ class UiDialogBase {
             this.ui.updateWindowLocation();
         }   
     }
+
     public isDisplay(x: number = this.x, y: number = this.y): boolean{
         let size = this.getSize();
         if(x + size.width > 1000 || y + size.height > height)
             return false;
         return true;
     }
+
     public status_exit: boolean = true;
     public setCanExit(status: boolean){
         this.status_exit = status;
         return this;
     }
+
     public build(): UiDialogBase {
         let self = this;
         let description: any = {type: "text", text: this.message, x: this.x, y: this.y, font: {size: this.style.size, color: android.graphics.Color.rgb(this.style.text[0], this.style.text[1],  this.style.text[2])}, multiline: true};
@@ -100,7 +114,6 @@ class UiDialogBase {
         let dispaly_size = new android.graphics.Point();
         display && display.getSize(dispaly_size);
 
-        let location = new UI.WindowLocation();
 
         this.ui = new UI.Window({
             location: {
@@ -123,14 +136,17 @@ class UiDialogBase {
                 "text": description
             }
         });
+
         this.ui.setEventListener({
             onClose(window) {},
             onOpen(window) {
                 onSystemUiVisibilityChange(self.ui.layout);
             },
         });
+
         this.ui.setCloseOnBackPressed(this.status_exit);
         this.ui.setBlockingBackground(true);
+
         return this;
     }
 
@@ -144,15 +160,45 @@ class UiDialogBase {
         this.message = Translation.translate(message);
         return this;
     }
+
     public getUi(): UI.Window {
         return this.ui;
     }
+
     public open(): UiDialogBase{
         this.ui.open();
         return this;
     }
+
     public close(): UiDialogBase{
         this.ui.close();
         return this;
     }
+
+    public toJson(): IJsonDialogBase {
+        return {
+            type: "base",
+            message: this.message,
+            status_exit: this.status_exit
+        };
+    }
+
+    static dialog_types: {[name: string]: (ui: IJsonDialogBase) => UiDialogBase} = {};
+    public static register(type: string, func: (ui: IJsonDialogBase) => UiDialogBase): void {
+        this.dialog_types[type] = func;
+    }
+
+
+    public static buildFrom(json: IJsonDialogBase): UiDialogBase {
+        if(!json) 
+            return null;
+
+        let func = this.dialog_types[json.type];
+        if(func)
+            return func(json);
+        return null;
+    }
 };
+
+UiDialogBase.register("base", (json) => new UiDialogBase(json.message)
+    .setCanExit(json.status_exit));

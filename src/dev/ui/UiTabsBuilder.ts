@@ -63,19 +63,33 @@ class UiTabsBuilder {
 
     public addRender(element: StandartTabElement): UiTabsBuilder {
         if(this.getTab(element.getId()) !== null) return this;
+
         element.setUiTabsBuilder(this);
         this.elements.push(element);
         element.addedTab();
+        
         return this;
     }
+
+    public forEach(func: (tab: StandartTabElement) => void): void {
+        for(let i in this.elements)
+            func(this.elements[i]);
+    }
+
     public setUiMainBuilder(main: UiMainBuilder, ui: UI.Window): UiTabsBuilder{
         this.main = main;
         this.ui = ui;
         return this;
     }
+
+    public getUiMainBuilder(): UiMainBuilder {
+        return this.main;
+    }
+
     public canLeft(): boolean {
         return this.isLeft
     }
+
     public buildServer(container: ItemContainer): UiTabsBuilder {
         this.elements.forEach(element => {
             if(element.isDisplay())
@@ -83,17 +97,21 @@ class UiTabsBuilder {
         });
         return this;
     }
+
     public buildTabInformation(element: StandartTabElement, group: UI.WindowGroup, style: UiStyle){
         element.build(group.getWindow("main"));
     }
+
     protected clear(element: StandartTabElement,){
         this.elements.forEach(element => {
             this.ui.content.elements[this.prefix+"_"+element.getId()].bitmap = element.getTextureSlot(this.main.style);
         });
     }
+
     public selectedTab(builder: UiTabsBuilder, element: StandartTabElement){
         this.clear(element);
     }
+
     protected onClick(element: StandartTabElement, position: Vector, container, tileEntity, window, canvas, scale): void {
         if(element.onClick(position, container, tileEntity, window, canvas, scale)){
             this.main.selectedTab(this, element);
@@ -101,6 +119,7 @@ class UiTabsBuilder {
             this.buildTabInformation(element, this.main.group, this.main.style);
         }
     }
+
     private dialog: UiDialogBase = new UiDialogBase("", 0, 0);
     public openDialogToTab(dialog: UiDialogBase, tab: StandartTabElement): UiTabsBuilder {
         let element = this.ui.content.elements[this.prefix+"_"+tab.getId()];
@@ -113,6 +132,7 @@ class UiTabsBuilder {
             dialog.setPos((1000-this.getMaxSize())-size.width-10, y+10).build().open();
         return this;
     }
+
     public replaceTab(name: string, tab: StandartTabElement){
         for(const i in this.elements)
             if(this.elements[i].getId() == name){
@@ -123,6 +143,7 @@ class UiTabsBuilder {
             }
     
     }
+
     public deleteFileTab(tab: StandartTabElement){
         let file: IUiMain | IUiTabs = FileTools.ReadJSON(tab.path);
         if(file.type == "main"){
@@ -138,6 +159,7 @@ class UiTabsBuilder {
         }else
             new java.io.File(tab.path).delete();
     }
+
     public deleteTab(name: string){
         for(const i in this.elements)
             if(this.elements[i].getId() == name){
@@ -169,6 +191,7 @@ class UiTabsBuilder {
             this.openDialogToTab(this.dialog, element);
         }
     }
+
     public build(container: ItemContainer, left: number, right: number): UiTabsBuilder {
         let location = new UI.WindowLocation({
             padding: {
@@ -208,6 +231,7 @@ class UiTabsBuilder {
         onSystemUiVisibility(this.ui);
         return this;
     }
+
     public getMaxSize(): number {
         let max = 0;
         this.elements.forEach(element => {
@@ -216,6 +240,7 @@ class UiTabsBuilder {
         });
         return max;
     }
+
     public getHeight(): number {
         let y = 0;
         this.elements.forEach(element => {

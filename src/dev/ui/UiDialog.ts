@@ -14,13 +14,15 @@ class UiDialogStyle extends UiDialogBaseStyle {
     }
 }
 
-interface Item {
+interface IItem {
     item: ItemInstance;
     dialog?: UiDialogBase;
 }
 
-Network.addServerPacket("ftb.accept_quest", (client, data: {items: Item[], main: string, isLeft: boolean, tab: string, quest: string, description: string, title: string}) => {
-    if(UiMainBuilder.getUiMainByName(data.main).canQuest(data.isLeft, data.tab, data.quest, client.getPlayerUid())) return;
+Network.addServerPacket("ftb.accept_quest", (client, data: {items: IItem[], main: string, isLeft: boolean, tab: string, quest: string, description: string, title: string}) => {
+    if(UiMainBuilder.getUiMainByName(data.main).canQuest(data.isLeft, data.tab, data.quest, client.getPlayerUid())) 
+        return;
+
     let actor = new PlayerActor(client.getPlayerUid());
     let items: {[key: string]: {slot: number, item: ItemInstance}} = {};
     for(let slot = 0;slot < 36;slot++){
@@ -31,6 +33,7 @@ Network.addServerPacket("ftb.accept_quest", (client, data: {items: Item[], main:
                 break;
             }
     }
+    
     let keys = Object.keys(items);
     for(let input of data.items)
         if(keys.indexOf(String(input.item.id)) == -1)
@@ -44,9 +47,16 @@ Network.addServerPacket("ftb.accept_quest", (client, data: {items: Item[], main:
     UiMainBuilder.getUiMainByName(data.main).give(data.isLeft, data.tab, data.quest, client.getPlayerUid(), data.description, data.title);
 });
 
+interface IJsonDialog extends IJsonDialogBase {
+    input: ItemInstance[];
+    result: ItemInstance[];
+    description: string;
+};
+
 class UiDialog extends UiDialogBase {
-    private input: Item[];
-    private result: Item[];
+    private input: IItem[];
+    private result: IItem[];
+    private descriptionOrginal: string;
     private description: string;
     public style: UiDialogStyle;
 
@@ -54,10 +64,16 @@ class UiDialog extends UiDialogBase {
         super(title, x, y);
         this.input = [];
         this.result = [];
-        this.description = Translation.translate(description);
         this.style = new UiDialogStyle();
 
-        let list = this.description.split(" ");
+        this.setDescription(description, maxWidth);
+    }
+
+    public setDescription(description: string, maxWidth: number = 600): UiDialog {
+        this.descriptionOrginal = description;
+        description = Translation.translate(description);
+
+        let list = description.split(" ");
         let width = 0;
         let result = "";
         for(let i in list){
@@ -68,15 +84,19 @@ class UiDialog extends UiDialogBase {
             if(width != 0) result += " ";
             result += text, width += size.width;
         }
-        this.description = result;
+        description = result;
+    
+        this.description = description;
+
+        return this;
     }
 
-    public setInput(inputs: Item[]): UiDialog {
+    public setInput(inputs: IItem[]): UiDialog {
         this.input = inputs;
         return this;
     }
 
-    public setResult(results: Item[]): UiDialog {
+    public setResult(results: IItem[]): UiDialog {
         this.result = results;
         return this;
     }
@@ -104,17 +124,20 @@ class UiDialog extends UiDialogBase {
         } catch (error) {}
         return size;
     } 
+
     private inventontory_check = false;
     public setInventoryCheck(inventontory_check: boolean){
         this.inventontory_check = inventontory_check
         return this;
     }
-    protected buildSlots(items: Item[], x: number, name: string): number {
+
+    protected buildSlots(items: IItem[], x: number, name: string): number {
         let content = this.ui.getContent();
         let size = super.getSize();
         let y = this.y+size.height+20;
         let _x = this.x+x;
         let slots = 1;
+
         for(let i = 0;i < items.length;i++){
             let item = items[i];
             content.elements[name+i] = {type: "slot", x: _x, size: this.style.slot_size, y: y, source: item.item, visual: true, bitmap: "_default_slot_empty", clicker: {
@@ -131,15 +154,19 @@ class UiDialog extends UiDialogBase {
             }
             slots++;
         }
+
         return y;
     }
+
     public build(): UiDialog {
         try {
             super.build();
+
             let content = this.ui.getContent();
             let _size = this.getSize();
             let size = super.getSize();
             let y = this.y + size.height;
+
             if(this.input.length > 0 || this.result.length > 0){
                 let slots1 = this.buildSlots(this.input, -10, "input_");
                 let slots2 = this.buildSlots(this.result, _size.width/2-10, "result_");
@@ -153,6 +180,7 @@ class UiDialog extends UiDialogBase {
                 content.drawing.push({type: "line", width: 5, x1: this.x - 10, y1: y, x2: this.x+_size.width - 10, y2: y});
                 content.elements["description"] = {type: "text", text: this.description, x: this.x, y: y+3, font: {size: this.style.description_size, color: android.graphics.Color.rgb(this.style.description_color[0], this.style.description_color[1],  this.style.description_color[2])}, multiline: true};
             }
+
             let self = this;
             if(this.inventontory_check && this.quest && !this.quest.tab.tab.main.canQuest(this.quest.tab.tab.isLeft, this.quest.tab.getId(), this.quest.getId()))
                 content.elements["accept"] = {type: "button", bitmap: "accept", bitmap2: "accept_gray", x: this.x + _size.width - 62, y: this.y + _size.height - 62, scale: 2, clicker: {
@@ -173,4 +201,42 @@ class UiDialog extends UiDialogBase {
         } catch (error) {}
         return this;
     }
+
+    public toJson(): IJsonDialog {
+        let input = [];
+        for(let i in this.input)
+            input.push(this.input[i].item);
+
+        let result = [];
+        for(let i in this.result)
+            result.push(this.result[i].item);
+
+        return {
+            type: "dialog",
+            message: this.message,
+            status_exit: this.status_exit,
+            description: this.descriptionOrginal,
+            input, result
+        };
+    }
 }
+
+UiDialogBase.register("dialog", (json: IJsonDialog) => {
+    let input: IItem[] = [];
+    for(let i in json.input)
+        input.push({
+            item: json.input[i]
+        });
+
+    let result: IItem[] = [];
+    for(let i in json.result)
+        result.push({
+            item: json.result[i]
+        });
+
+    return new UiDialog(json.message)
+        .setCanExit(json.status_exit)
+        .setDescription(json.description)
+        .setInput(input)
+        .setResult(result);
+});
